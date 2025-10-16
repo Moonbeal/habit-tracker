@@ -1,18 +1,12 @@
-// components/AddHabitForm.tsx - Форма додавання звички
+// components/AddHabitForm.jsx - Форма додавання звички
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Habit } from '../types/Habit';
 
-interface AddHabitFormProps {
-  onAdd: (habit: Habit) => void;
-  onCancel: () => void;
-}
-
-const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAdd, onCancel }) => {
+const AddHabitForm = ({ onAdd, onCancel }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('#a855f7');
-  const [category, setCategory] = useState<'health' | 'sport' | 'study' | 'work' | 'personal' | 'other'>('health');
+  const [category, setCategory] = useState('health');
 
   const colors = [
     { name: 'Фіолетовий', value: '#a855f7' },
@@ -32,9 +26,9 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAdd, onCancel }) => {
     { value: 'other', label: 'Інше', emoji: '📌' },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const newHabit: Habit = {
+    const newHabit = {
       id: Date.now().toString(),
       name,
       description,
@@ -93,7 +87,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAdd, onCancel }) => {
               type='button'
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setCategory(cat.value as any)}
+              onClick={() => setCategory(cat.value)}
               className={`p-3 rounded-lg border-2 transition-colors ${
                 category === cat.value
                   ? 'border-purple-500 bg-purple-50 text-purple-900'

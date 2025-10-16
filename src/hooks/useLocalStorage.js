@@ -1,8 +1,8 @@
-// hooks/useLocalStorage.ts
+// hooks/useLocalStorage.js
 import { useState, useEffect } from 'react';
 
-function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -20,7 +20,7 @@ function useLocalStorage<T>(key: string, initialValue: T) {
     }
   }, [key, storedValue]);
 
-  return [storedValue, setStoredValue] as const;
+  return [storedValue, setStoredValue];
 }
 
 export default useLocalStorage;

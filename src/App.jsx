@@ -1,4 +1,4 @@
-// App.tsx - Головний компонент застосунку
+// App.jsx - Головний компонент застосунку
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
@@ -7,7 +7,7 @@ import StatsPage from './pages/StatsPage';
 import AchievementsPage from './pages/AchievementsPage';
 import Navbar from './components/Navbar';
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-lavender-50 to-purple-100">

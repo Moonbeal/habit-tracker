@@ -1,14 +1,9 @@
-// components/CalendarView.tsx - Календар виконань звички
+// components/CalendarView.jsx - Календар виконань звички
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Habit } from '../types/Habit';
 
-interface CalendarViewProps {
-  habit: Habit;
-}
-
-const CalendarView: React.FC<CalendarViewProps> = ({ habit }) => {
+const CalendarView = ({ habit }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthNames = [
@@ -19,7 +14,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ habit }) => {
   const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 
   // Отримуємо дні місяця
-  const getDaysInMonth = (date: Date): (Date | null)[] => {
+  const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
@@ -31,7 +26,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ habit }) => {
     // Конвертуємо в наш формат (0 = понеділок)
     firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
-    const days: (Date | null)[] = [];
+    const days = [];
     
     // Додаємо порожні клітинки для днів попереднього місяця
     for (let i = 0; i < firstDayOfWeek; i++) {
@@ -60,7 +55,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ habit }) => {
     }
   };
 
-  const isCompleted = (date: Date | null) => {
+  const isCompleted = (date) => {
     if (!date) return false;
     // Нормалізуємо дату до локального часу
     const year = date.getFullYear();
@@ -70,13 +65,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ habit }) => {
     return habit.completedDays.includes(dateStr);
   };
 
-  const isToday = (date: Date | null) => {
+  const isToday = (date) => {
     if (!date) return false;
     const today = new Date();
     return date.toDateString() === today.toDateString();
   };
 
-  const isFuture = (date: Date | null) => {
+  const isFuture = (date) => {
     if (!date) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);

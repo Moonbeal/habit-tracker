@@ -1,22 +1,14 @@
-// components/HabitCard.tsx - Картка звички
+// components/HabitCard.jsx - Картка звички
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Circle, Trash2, Calendar, Flame } from 'lucide-react';
-import { Habit } from '../types/Habit';
 
-interface HabitCardProps {
-  habit: Habit;
-  onToggleComplete: (id: string) => void;
-  onDelete: (id: string) => void;
-  onClick: () => void;
-}
-
-const HabitCard: React.FC<HabitCardProps> = ({ habit, onToggleComplete, onDelete, onClick }) => {
+const HabitCard = ({ habit, onToggleComplete, onDelete, onClick }) => {
   const today = new Date().toISOString().split('T')[0];
   const isCompletedToday = habit.completedDays.includes(today);
   
   // Іконки категорій
-  const categoryEmojis: Record<string, string> = {
+  const categoryEmojis = {
     health: '🏥',
     sport: '⚽',
     study: '📚',
@@ -26,7 +18,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onToggleComplete, onDelete
   };
 
   // Назви категорій українською
-  const categoryNames: Record<string, string> = {
+  const categoryNames = {
     health: 'Здоров\'я',
     sport: 'Спорт',
     study: 'Навчання',
@@ -42,15 +34,15 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onToggleComplete, onDelete
     return date.toISOString().split('T')[0];
   });
 
-  const completionRate = (habit.completedDays.length / Math.max(1, getDaysSinceStart(habit.startDate))) * 100;
-
-  function getDaysSinceStart(startDate: string): number {
+  const getDaysSinceStart = (startDate) => {
     const start = new Date(startDate);
     const today = new Date();
     const diffTime = Math.abs(today.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return Math.max(1, diffDays);
-  }
+  };
+
+  const completionRate = (habit.completedDays.length / Math.max(1, getDaysSinceStart(habit.startDate))) * 100;
 
   return (
     <motion.div

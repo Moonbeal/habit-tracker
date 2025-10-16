@@ -1,4 +1,4 @@
-// pages/HabitsPage.tsx - Сторінка зі звичками
+// pages/HabitsPage.jsx - Сторінка зі звичками
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
@@ -6,16 +6,15 @@ import HabitCard from '../components/HabitCard';
 import AddHabitForm from '../components/AddHabitForm';
 import CalendarView from '../components/CalendarView';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { Habit } from '../types/Habit';
 
-const HabitsPage: React.FC = () => {
-  const [habits, setHabits] = useLocalStorage<Habit[]>('habits', []);
+const HabitsPage = () => {
+  const [habits, setHabits] = useLocalStorage('habits', []);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const [selectedHabit, setSelectedHabit] = useState(null);
   const [motivationalMessage, setMotivationalMessage] = useState('');
 
   // Функція для додавання нової звички
-  const handleAddHabit = (habit: Habit) => {
+  const handleAddHabit = (habit) => {
     setHabits([...habits, habit]);
     setShowAddForm(false);
     setMotivationalMessage('Перша звичка створена! 💫');
@@ -23,13 +22,13 @@ const HabitsPage: React.FC = () => {
   };
 
   // Функція для відмітки виконання звички
-  const handleToggleComplete = (habitId: string) => {
+  const handleToggleComplete = (habitId) => {
     const today = new Date().toISOString().split('T')[0];
     
     setHabits(habits.map(habit => {
       if (habit.id === habitId) {
         const isCompleted = habit.completedDays.includes(today);
-        let newCompletedDays: string[];
+        let newCompletedDays;
         
         if (isCompleted) {
           // Видаляємо відмітку
@@ -65,13 +64,13 @@ const HabitsPage: React.FC = () => {
   };
 
   // Функція для видалення звички
-  const handleDeleteHabit = (habitId: string) => {
+  const handleDeleteHabit = (habitId) => {
     setHabits(habits.filter(habit => habit.id !== habitId));
     setSelectedHabit(null);
   };
 
   // Підрахунок серій днів
-  const calculateStreaks = (completedDays: string[]) => {
+  const calculateStreaks = (completedDays) => {
     if (completedDays.length === 0) return { currentStreak: 0, bestStreak: 0 };
     
     const sortedDays = completedDays.sort().reverse();

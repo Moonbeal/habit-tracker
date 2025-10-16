@@ -1,10 +1,10 @@
-// components/Navbar.tsx - Навігаційна панель
+// components/Navbar.jsx - Навігаційна панель
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, ListChecks, BarChart3, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const location = useLocation();
 
   const navItems = [

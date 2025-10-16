@@ -1,24 +1,13 @@
-// pages/AchievementsPage.tsx - Сторінка досягнень
+// pages/AchievementsPage.jsx - Сторінка досягнень
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Target, Flame, Star, Award, Zap, CheckCircle } from 'lucide-react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { Habit } from '../types/Habit';
 
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  unlocked: boolean;
-  progress?: number;
-  maxProgress?: number;
-}
+const AchievementsPage = () => {
+  const [habits] = useLocalStorage('habits', []);
 
-const AchievementsPage: React.FC = () => {
-  const [habits] = useLocalStorage<Habit[]>('habits', []);
-
-  const achievements = useMemo((): Achievement[] => {
+  const achievements = useMemo(() => {
     const totalHabits = habits.length;
     const totalCompletions = habits.reduce((sum, habit) => sum + habit.completedDays.length, 0);
     const maxStreak = Math.max(...habits.map(h => h.bestStreak), 0);

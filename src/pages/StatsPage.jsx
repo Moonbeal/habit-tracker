@@ -1,13 +1,12 @@
-// pages/StatsPage.tsx - Сторінка статистики
+// pages/StatsPage.jsx - Сторінка статистики
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, Target, Flame, Award } from 'lucide-react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { Habit } from '../types/Habit';
 
-const getCategoryName = (category: string): string => {
-  const names: Record<string, string> = {
+const getCategoryName = (category) => {
+  const names = {
     health: 'Здоров\'я',
     sport: 'Спорт',
     study: 'Навчання',
@@ -18,8 +17,8 @@ const getCategoryName = (category: string): string => {
   return names[category] || category;
 };
 
-const StatsPage: React.FC = () => {
-  const [habits] = useLocalStorage<Habit[]>('habits', []);
+const StatsPage = () => {
+  const [habits] = useLocalStorage('habits', []);
 
   // Загальна статистика
   const stats = useMemo(() => {
@@ -42,7 +41,7 @@ const StatsPage: React.FC = () => {
     });
 
     // Статистика по категоріях
-    const categoryStats: Record<string, number> = {};
+    const categoryStats = {};
     habits.forEach(habit => {
       categoryStats[habit.category] = (categoryStats[habit.category] || 0) + 1;
     });

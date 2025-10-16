@@ -1,10 +1,10 @@
-// pages/HomePage.tsx - Головна сторінка
+// pages/HomePage.jsx - Головна сторінка
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Target, TrendingUp, Award } from 'lucide-react';
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const features = [
     { icon: Target, title: 'Створюй звички', description: 'Додавай нові корисні звички' },
     { icon: TrendingUp, title: 'Відстежуй прогрес', description: 'Бачи свої досягнення щодня' },
