@@ -1,7 +1,7 @@
 // components/Navbar.jsx - Навігаційна панель
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListChecks, BarChart3, Trophy } from 'lucide-react';
+import { Home, ListChecks, BarChart3, Trophy, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar = () => {
@@ -12,6 +12,7 @@ const Navbar = () => {
     { path: '/habits', icon: ListChecks, label: 'Звички' },
     { path: '/stats', icon: BarChart3, label: 'Статистика' },
     { path: '/achievements', icon: Trophy, label: 'Досягнення' },
+    { path: '/ai-assistant', icon: Sparkles, label: 'AI Асистент' },
   ];
 
   return (

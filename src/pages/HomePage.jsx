@@ -3,8 +3,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Target, TrendingUp, Award } from 'lucide-react';
+import useLocalStorage from '../hooks/useLocalStorage';
+import AIRecommendations from '../components/AIRecommendations';
 
 const HomePage = () => {
+  const [habits] = useLocalStorage('habits', []);
+  
   const features = [
     { icon: Target, title: 'Створюй звички', description: 'Додавай нові корисні звички' },
     { icon: TrendingUp, title: 'Відстежуй прогрес', description: 'Бачи свої досягнення щодня' },
@@ -13,6 +17,7 @@ const HomePage = () => {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen py-12'>
+      <AIRecommendations habits={habits} />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
