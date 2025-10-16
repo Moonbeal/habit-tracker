@@ -1,15 +1,24 @@
 // AIChat.jsx - Компонент чату з AI асистентом
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, X, Sparkles, Loader2 } from 'lucide-react';
+import { MessageCircle, Send, X, Sparkles, Loader2, TrendingUp, Lightbulb, Zap } from 'lucide-react';
 import { useAI } from '../hooks/useAI';
+import { useLocation } from 'react-router-dom';
 
 const AIChat = ({ habits = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef(null);
+  const location = useLocation();
   const { isInitialized, loading, sendMessage, startChat } = useAI();
+
+  // Швидкі кнопки
+  const quickActions = [
+    { icon: TrendingUp, text: 'Проаналізуй мої звички', emoji: '📊' },
+    { icon: Lightbulb, text: 'Дай мені пораду', emoji: '💡' },
+    { icon: Zap, text: 'Мотивуй мене!', emoji: '🔥' },
+  ];
 
   // Ініціалізація чату при відкритті
   useEffect(() => {
@@ -30,23 +39,54 @@ const AIChat = ({ habits = [] }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || loading || !isInitialized) return;
+  // Створюємо повний контекст про користувача
+  const getFullContext = (userMessage) => {
+    const stats = {
+      totalHabits: habits.length,
+      totalCompletions: habits.reduce((sum, h) => sum + (h.completions?.length || 0), 0),
+      bestStreak: Math.max(...habits.map(h => h.bestStreak || 0), 0),
+      currentPage: location.pathname,
+    };
+
+    const habitsList = habits.map(h => ({
+      name: h.name,
+      category: h.category,
+      currentStreak: h.currentStreak || 0,
+      completions: h.completions?.length || 0,
+    }));
+
+    const context = `
+Ти - персональний асистент для формування звичок. Відповідай українською мовою, коротко та по суті.
+
+КОНТЕКСТ КОРИСТУВАЧА:
+- Всього звичок: ${stats.totalHabits}
+- Всього виконань: ${stats.totalCompletions}
+- Найкраща серія: ${stats.bestStreak} днів
+- Поточна сторінка: ${stats.currentPage}
+
+${habitsList.length > 0 ? `ЗВИЧКИ КОРИСТУВАЧА:\n${habitsList.map(h => `- ${h.name} (${h.category}): ${h.currentStreak} днів підряд, ${h.completions} разів виконано`).join('\n')}` : 'У користувача ще немає звичок.'}
+
+ПИТАННЯ КОРИСТУВАЧА: ${userMessage}
+`;
+
+    return context;
+  };
+
+  const handleSendMessage = async (messageText = null) => {
+    const textToSend = messageText || inputMessage;
+    if (!textToSend.trim() || loading || !isInitialized) return;
 
     const userMessage = {
       role: 'user',
-      content: inputMessage,
+      content: textToSend,
       timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    // Додаємо контекст про звички
-    const contextMessage = habits.length > 0 
-      ? `Контекст: У користувача ${habits.length} звичок: ${habits.map(h => h.name).join(', ')}. ${inputMessage}`
-      : inputMessage;
-
+    // Відправляємо з повним контекстом
+    const contextMessage = getFullContext(textToSend);
     const response = await sendMessage(contextMessage);
 
     if (response) {
@@ -57,6 +97,11 @@ const AIChat = ({ habits = [] }) => {
       };
       setMessages(prev => [...prev, aiMessage]);
     }
+  };
+
+  // Обробник швидких кнопок
+  const handleQuickAction = (actionText) => {
+    handleSendMessage(actionText);
   };
 
   const handleKeyPress = (e) => {
@@ -156,6 +201,26 @@ const AIChat = ({ habits = [] }) => {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Швидкі кнопки */}
+            {messages.length <= 1 && (
+              <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
+                <p className="text-xs text-gray-500 mb-2">Швидкі дії:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickActions.map((action, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleQuickAction(action.text)}
+                      disabled={loading}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-white border border-purple-200 text-purple-700 rounded-full text-xs hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <span>{action.emoji}</span>
+                      <span>{action.text}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Поле вводу */}
             <div className="p-4 bg-white border-t border-gray-200">
               <div className="flex gap-2">
@@ -169,7 +234,7 @@ const AIChat = ({ habits = [] }) => {
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
                 />
                 <button
-                  onClick={handleSendMessage}
+                  onClick={() => handleSendMessage()}
                   disabled={loading || !inputMessage.trim()}
                   className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
