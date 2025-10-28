@@ -355,6 +355,7 @@ export default function MainPage() {
               <div className="max-w-4xl mx-auto"><DailyQuote /></div>
             </motion.div>
 
+
             <div className="relative mb-4 text-right">
               <h2 className="inline-block text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 Прогрес за тиждень
