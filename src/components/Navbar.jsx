@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, ListChecks, BarChart3, Trophy, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const location = useLocation();
@@ -16,9 +17,11 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className='fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-purple-200 shadow-lg z-50'>
+    <nav className='fixed bottom-0 left-0 right-0 glass-strong shadow-purple z-50'>
       <div className='container mx-auto px-4'>
-        <div className='flex justify-around items-center py-3'>
+        <div className='flex justify-between items-center py-3'>
+          <ThemeToggle />
+          <div className='flex justify-around items-center flex-1'>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -35,14 +38,14 @@ const Navbar = () => {
                   className={`p-2 rounded-xl transition-colors ${
                     isActive
                       ? 'bg-purple-500 text-white'
-                      : 'text-purple-600 hover:bg-purple-100'
+                      : 'text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30'
                   }`}
                 >
                   <Icon size={24} />
                 </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
-                    isActive ? 'text-purple-700' : 'text-purple-500'
+                    isActive ? 'text-purple-700 dark:text-purple-300' : 'text-purple-500 dark:text-purple-400'
                   }`}
                 >
                   {item.label}
@@ -56,6 +59,7 @@ const Navbar = () => {
               </Link>
             );
           })}
+          </div>
         </div>
       </div>
     </nav>

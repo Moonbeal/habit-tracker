@@ -86,12 +86,12 @@ const AIAssistantPage = () => {
 
     const stats = {
       totalHabits: habits.length,
-      totalCompletions: habits.reduce((sum, h) => sum + (h.completions?.length || 0), 0),
+      totalCompletions: habits.reduce((sum, h) => sum + (h.completedDays?.length || 0), 0),
       bestStreak: Math.max(...habits.map(h => h.bestStreak || 0), 0),
       weeklyCompletions: habits.reduce((sum, h) => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
-        const recentCompletions = (h.completions || []).filter(
+        const recentCompletions = (h.completedDays || []).filter(
           date => new Date(date) >= weekAgo
         );
         return sum + recentCompletions.length;
@@ -134,7 +134,7 @@ const AIAssistantPage = () => {
               <Key className="text-purple-600" size={24} />
               <h2 className="text-xl font-semibold">Налаштування API</h2>
             </div>
-            {isInitialized && (
+            {isInitialized && !showApiKey && (
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-green-500" size={20} />
                 <span className="text-sm text-green-600 font-medium">Підключено</span>
@@ -194,30 +194,34 @@ const AIAssistantPage = () => {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                  API ключ збережено
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="text-green-600" size={20} />
+                  <div>
+                    <p className="text-sm font-medium text-green-900">API ключ активний</p>
+                    <p className="text-xs text-green-600">{apiKey.substring(0, 15)}...</p>
+                  </div>
                 </div>
-                <span className="text-xs text-gray-500">
-                  {apiKey.substring(0, 10)}...
-                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowApiKey(true)}
+                    className="px-3 py-1.5 text-xs text-purple-600 hover:bg-purple-50 rounded-lg font-medium transition-colors"
+                  >
+                    Змінити
+                  </button>
+                  <button
+                    onClick={handleRemoveApiKey}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Trash2 size={12} />
+                    Видалити
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowApiKey(true)}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                >
-                  Змінити
-                </button>
-                <button
-                  onClick={handleRemoveApiKey}
-                  className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700 font-medium"
-                >
-                  <Trash2 size={14} />
-                  Видалити
-                </button>
-              </div>
+              <p className="text-xs text-gray-500">
+                💡 AI асистент готовий до роботи. Використовуйте функції нижче або відкрийте чат.
+              </p>
             </div>
           )}
 

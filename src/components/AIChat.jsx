@@ -1,7 +1,7 @@
 // AIChat.jsx - Компонент чату з AI асистентом
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, X, Sparkles, Loader2, TrendingUp, Lightbulb, Zap } from 'lucide-react';
+import { MessageCircle, Send, X, Sparkles, Loader2, TrendingUp, Lightbulb, Zap, BarChart3, Target, Calendar } from 'lucide-react';
 import { useAI } from '../hooks/useAI';
 import { useLocation } from 'react-router-dom';
 
@@ -15,9 +15,12 @@ const AIChat = ({ habits = [] }) => {
 
   // Швидкі кнопки
   const quickActions = [
-    { icon: TrendingUp, text: 'Проаналізуй мої звички', emoji: '📊' },
-    { icon: Lightbulb, text: 'Дай мені пораду', emoji: '💡' },
     { icon: Zap, text: 'Мотивуй мене!', emoji: '🔥' },
+    { icon: TrendingUp, text: 'Як мій прогрес?', emoji: '📈' },
+    { icon: Lightbulb, text: 'Дай пораду по звичках', emoji: '💡' },
+    { icon: BarChart3, text: 'Покажи статистику', emoji: '📊' },
+    { icon: Target, text: 'Які цілі мені поставити?', emoji: '🎯' },
+    { icon: Calendar, text: 'Що робити сьогодні?', emoji: '📅' },
   ];
 
   // Ініціалізація чату при відкритті
@@ -43,7 +46,7 @@ const AIChat = ({ habits = [] }) => {
   const getFullContext = (userMessage) => {
     const stats = {
       totalHabits: habits.length,
-      totalCompletions: habits.reduce((sum, h) => sum + (h.completions?.length || 0), 0),
+      totalCompletions: habits.reduce((sum, h) => sum + (h.completedDays?.length || 0), 0),
       bestStreak: Math.max(...habits.map(h => h.bestStreak || 0), 0),
       currentPage: location.pathname,
     };
@@ -52,7 +55,8 @@ const AIChat = ({ habits = [] }) => {
       name: h.name,
       category: h.category,
       currentStreak: h.currentStreak || 0,
-      completions: h.completions?.length || 0,
+      completions: h.completedDays?.length || 0,
+      lastCompleted: h.completedDays?.length > 0 ? h.completedDays[h.completedDays.length - 1] : null,
     }));
 
     const context = `
@@ -64,7 +68,7 @@ const AIChat = ({ habits = [] }) => {
 - Найкраща серія: ${stats.bestStreak} днів
 - Поточна сторінка: ${stats.currentPage}
 
-${habitsList.length > 0 ? `ЗВИЧКИ КОРИСТУВАЧА:\n${habitsList.map(h => `- ${h.name} (${h.category}): ${h.currentStreak} днів підряд, ${h.completions} разів виконано`).join('\n')}` : 'У користувача ще немає звичок.'}
+${habitsList.length > 0 ? `ЗВИЧКИ КОРИСТУВАЧА:\n${habitsList.map(h => `- ${h.name} (${h.category}): ${h.currentStreak} днів підряд, ${h.completions} разів виконано${h.lastCompleted ? `, остання відмітка: ${h.lastCompleted}` : ''}`).join('\n')}` : 'У користувача ще немає звичок.'}
 
 ПИТАННЯ КОРИСТУВАЧА: ${userMessage}
 `;
@@ -205,16 +209,16 @@ ${habitsList.length > 0 ? `ЗВИЧКИ КОРИСТУВАЧА:\n${habitsList.ma
             {messages.length <= 1 && (
               <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
                 <p className="text-xs text-gray-500 mb-2">Швидкі дії:</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {quickActions.map((action, index) => (
                     <button
                       key={index}
                       onClick={() => handleQuickAction(action.text)}
                       disabled={loading}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-white border border-purple-200 text-purple-700 rounded-full text-xs hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-1.5 px-2.5 py-2 bg-white border border-purple-200 text-purple-700 rounded-lg text-xs hover:bg-purple-50 hover:border-purple-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      <span>{action.emoji}</span>
-                      <span>{action.text}</span>
+                      <span className="text-base">{action.emoji}</span>
+                      <span className="text-left flex-1">{action.text}</span>
                     </button>
                   ))}
                 </div>
