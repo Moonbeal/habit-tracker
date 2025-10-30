@@ -1,470 +1,254 @@
-// pages/ProgressPage.jsx — RPG ТРЕКЕР З ЕМОДЗІ-МОНСТРОМ
+// pages/ProgressPage.jsx 
 import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Trophy, Flame, Zap, Plus, X, Star, Calendar, Target, Sparkles, ChevronLeft, ChevronRight,
-  Heart, Skull, Sword, Shield, Crown, Cookie, Apple, Fish, Gem, Package, ShoppingBag
+  Flame, Zap, Plus, X, Star, Calendar, Sparkles, ChevronLeft, ChevronRight,
+  Heart, Skull, Sword, Shield, Crown, Cookie, Apple, Fish, Gem, Package, ShoppingBag, User,
+  CheckCircle, AlertTriangle, Info, ShieldCheck, Axe, HelpCircle, Briefcase, UtensilsCrossed,
+  FlaskConical, Key, Edit
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import useLocalStorage from '../hooks/useLocalStorage';
 import AddHabitForm from '../components/AddHabitForm';
 
-// === ЕМОДЗІ-МОНСТРИ (ЕВОЛЮЦІЯ) ===
+// --- ДАНІ ---
 const monsterEvolutions = [
-  { level: 0, name: 'Яйце', emoji: '🥚', size: 80, bg: 'from-amber-200 to-yellow-300', glow: 'shadow-amber-500/50' },
-  { level: 1, name: 'Малюк', emoji: '🐣', size: 100, bg: 'from-pink-300 to-rose-400', glow: 'shadow-pink-500/50' },
-  { level: 5, name: 'Підліток', emoji: '🦎', size: 120, bg: 'from-purple-400 to-indigo-500', glow: 'shadow-purple-500/50' },
-  { level: 10, name: 'Воїн', emoji: '🦸', size: 140, bg: 'from-red-500 to-orange-600', glow: 'shadow-red-500/50' },
-  { level: 20, name: 'Легенда', emoji: '👑', size: 160, bg: 'from-emerald-500 to-teal-600', glow: 'shadow-emerald-500/50' },
+ { xpThreshold: 0,    name: 'Яйце',    emoji: '🥚', size: 100, bg: 'from-amber-200 to-yellow-300', glow: 'shadow-amber-500/50' },
+ { xpThreshold: 100,  name: 'Малюк',   emoji: '🐣', size: 120, bg: 'from-pink-300 to-rose-400', glow: 'shadow-pink-500/50' },
+ { xpThreshold: 500,  name: 'Підліток', emoji: '🦎', size: 140, bg: 'from-purple-400 to-indigo-500', glow: 'shadow-purple-500/50' },
+ { xpThreshold: 1500, name: 'Воїн',    emoji: '🦸', size: 160, bg: 'from-red-500 to-orange-600', glow: 'shadow-red-500/50' },
+ { xpThreshold: 3000, name: 'Легенда',  emoji: '🦁', size: 180, bg: 'from-emerald-500 to-teal-600', glow: 'shadow-emerald-500/50' },
+ { xpThreshold: 6000, name: 'Майстер', emoji: '🧙', size: 200, bg: 'from-cyan-400 to-sky-500', glow: 'shadow-cyan-500/50' },
+ { xpThreshold: 10000,name: 'Володар', emoji: '🧞', size: 220, bg: 'from-rose-500 to-fuchsia-600', glow: 'shadow-rose-500/50' },
+ { xpThreshold: 20000,name: 'Божество',emoji: '✨', size: 240, bg: 'from-yellow-300 via-amber-400 to-orange-500', glow: 'shadow-yellow-400/60' },
 ];
 
-// === ЇЖА (емоції + ефекти) ===
 const foodItems = [
-  { id: 'apple', name: 'Яблуко', price: 50, energy: 30, emoji: '🍎', effect: '+30 HP' },
-  { id: 'carrot', name: 'Морква', price: 80, energy: 50, emoji: '🥕', effect: '+50 Енергії' },
-  { id: 'fish', name: 'Риба', price: 150, energy: 100, emoji: '🐟', effect: '+100 Сили' },
-  { id: 'cookie', name: 'Печиво', price: 200, energy: 150, emoji: '🍪', effect: '+150 Щастя' },
+  { id: 'bread', name: 'Хліб', price: 30, stamina: 15, hunger: -15, xp: 15, emoji: '🍞', effect: '+15 XP, +15 Витр.' }, 
+  { id: 'apple', name: 'Яблуко', price: 50, stamina: 30, hunger: -25, xp: 30, emoji: '🍎', effect: '+30 XP, +30 Витр.' }, 
+  { id: 'cookie', name: 'Печиво', price: 80, stamina: 50, hunger: -10, xp: 50, emoji: '🍪', effect: '+50 XP, +50 Витр.' }, 
+  { id: 'fish', name: 'Риба', price: 100, stamina: 65, hunger: -50, xp: 100, emoji: '🐟', effect: '+100 XP, +65 Витр.' }, 
+  { id: 'chicken', name: 'Курка', price: 120, stamina: 70, hunger: -70, xp: 150, emoji: '🍗', effect: '+150 XP, +70 Витр.' }, 
+  { id: 'steak', name: 'Стейк', price: 150, stamina: 80, hunger: -90, xp: 250, emoji: '🥩', effect: '+250 XP, +80 Витр.' }, 
+  { id: 'sushi', name: 'Суші-сет', price: 200, stamina: 90, hunger: -60, xp: 350, emoji: '🍣', effect: '+350 XP, +90 Витр.' }, 
+  { id: 'cake', name: 'Святковий Торт', price: 300, stamina: 100, hunger: -50, xp: 400, emoji: '🎂', effect: '+400 XP, +100 Витр.' }, 
+  { id: 'gem', name: 'Магічний Кристал', price: 250, stamina: 100, hunger: 0, xp: 300, emoji: '💎', effect: '+300 XP, Повне відновлення Витр.' }, 
+  { id: 'magic_nectar', name: 'Магічний Нектар', price: 400, stamina: 100, hunger: -20, xp: 500, emoji: '🍹', effect: '+500 XP, +100 Витр.' }, 
+  { id: 'golden_apple', name: 'Золоте Яблуко', price: 1000, stamina: 100, hunger: -100, xp: 1000, emoji: '🌟', effect: '+1000 XP, +100 Витр.!' }, 
 ];
 
-// === МАГІЧНІ ПРЕДМЕТИ ===
-const magicItems = [
-  { id: 'shield', name: 'Щит Воїна', price: 300, emoji: '🛡️', stat: 'defense', value: 5 },
-  { id: 'sword', name: 'Меч Сили', price: 500, emoji: '⚔️', stat: 'attack', value: 10 },
-  { id: 'crown', name: 'Корона Легенди', price: 1000, emoji: '👑', type: 'cosmetic' },
-];
+// ✅ ОНОВЛЕНО: Перебалансоване спорядження
+const equipmentItems = [
 
+  { id: 'dagger_upgrade', name: 'Покращення Кинджалом', price: 200, emoji: '🗡️', stat: 'attack', value: 20, effect: '+20 Сила' },  
+  { id: 'sword_upgrade', name: 'Покращення Мечем', price: 350, emoji: '⚔️', stat: 'attack', value: 40, effect: '+40 Сила' },  
+  { id: 'axe_upgrade', name: 'Покращення Сокирою', price: 600, emoji: '🪓', stat: 'attack', value: 80, effect: '+80 Сила' }, 
+  { id: 'greatsword_upgrade', name: 'Покращення Великим Мечем', price: 1000, emoji: '🗡️✨', stat: 'attack', value: 150, effect: '+150 Сила' }, 
+
+  { id: 'stamina_charm', name: 'Амулет Економії', price: 1500, emoji: '📿', stat: 'efficiency', value: 5, effect: '-5 Витрата Витр.' }, 
+  { id: 'relic_of_focus', name: 'Реліквія Фокусу', price: 3500, emoji: '👁️', stat: 'efficiency', value: 15, effect: '-15 Витрата Витр.' }, 
+  
+  // Зілля
+  { id: 'potion_strength', name: 'Зілля Сили', price: 100, emoji: '🧪', type: 'potion', effect: '+20 Сили на 1 бій (майбутнє)' },
+  
+  // Артефакти
+  { id: 'crown', name: 'Корона Легенди', price: 7500, emoji: '👑', type: 'cosmetic', effect: '2x очок за квести!' }, 
+  { id: 'golden_key', name: 'Золотий Ключ', price: 15000, emoji: '🔑', type: 'artifact', effect: 'Відкриває таємниці?' }, 
+]
+
+// --- УТИЛІТИ ---
+const todayISO = () => new Date().toISOString().split('T')[0];
+const calculateStreak = (days) => { if (!Array.isArray(days)||days.length===0)return{current:0,best:0}; const s=[...new Set(days)].sort((a,b)=>new Date(b)-new Date(a)); let c=0; let k=new Date(todayISO()); while(s.includes(k.toISOString().split('T')[0])){c++;k.setDate(k.getDate()-1);} let b=0; let t=1; for(let i=1;i<s.length;i++){const d=(new Date(s[i-1])-new Date(s[i]))/864e5; if(d===1)t++;else{b=Math.max(b,t);t=1;}} b=Math.max(b,t,c); return{current:c,best:b}; };
+
+// --- Компоненти ---
+function MonsterDisplay({ monster, showEvolution, size }) {
+  const emojiSize = Math.min(96, Math.round(size / 1.5));
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} className="relative">
+        <div style={{ width: size, height: size }} className={`rounded-full bg-gradient-to-br ${monster?.bg || 'from-gray-400 to-gray-500'} flex items-center justify-center text-center text-[${emojiSize}px] shadow-lg ${monster?.glow || ''}`}>
+          <div style={{ fontSize: emojiSize }}>{monster?.emoji || '❓'}</div>
+        </div>
+        {showEvolution && ( <motion.div initial={{ scale: 0 }} animate={{ scale: [1, 1.8, 1] }} transition={{ duration: 1.2 }} className="absolute inset-0 flex items-center justify-center pointer-events-none"> <Sparkles className="w-16 h-16 text-yellow-400" /> <div className="absolute text-xl font-extrabold text-white drop-shadow-lg">ЕВОЛЮЦІЯ!</div> </motion.div> )}
+      </motion.div>
+    </div>
+  );
+}
+
+function BossBattleModal({ open, onClose, bossHp, maxBossHp, onAttack, playerStamina, attackCost, canAttack, onAutoAttack, rewardText, isBossHit }) {
+  return (
+    <AnimatePresence> {open && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"> <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }} className="max-w-3xl w-full rounded-3xl bg-gradient-to-br from-gray-800 to-gray-900 text-white p-6 border border-red-500/30 shadow-2xl"> <div className="flex justify-between items-start"> <h3 className="text-2xl font-black text-red-500">Битва з Босом</h3> <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10"><X className="w-5 h-5" /></button> </div> <div className="mt-6 grid grid-cols-2 gap-4 items-center"> <div className="text-center"> <motion.div animate={isBossHit ? { scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] } : { scale: 1, rotate: 0 }} transition={{ duration: 0.3 }} className="text-6xl mb-2">👹</motion.div> <p className="font-bold">Лінивий Дракон</p> <p className="text-xs text-gray-400">(Рівень {Math.floor((maxBossHp - 500) / 100) + 1})</p> </div> <div> <p className="text-sm text-gray-400">HP Боса</p> <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden mt-1"> <div style={{ width: `${(bossHp / maxBossHp) * 100}%` }} className="h-full bg-gradient-to-r from-red-600 to-rose-600 transition-all" /> </div> <p className="text-sm mt-2 font-semibold">{bossHp} / {maxBossHp}</p> <div className="mt-4"> <p className="text-sm text-gray-400">Ваша Витривалість</p> <div className="flex items-center gap-2 mt-2"> <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden"> <div style={{ width: `${(playerStamina / 100) * 100}%` }} className="h-full bg-gradient-to-r from-indigo-400 to-purple-500" /> </div> <span className="text-sm font-semibold">{playerStamina}%</span> </div> <p className="text-xs text-gray-500 mt-2">Атака коштує {attackCost} витривалості.</p> </div> </div> </div> <div className="mt-6 flex flex-col items-center gap-3 justify-center"> <button onClick={onAttack} disabled={!canAttack} className="px-6 py-3 rounded-xl bg-red-600 text-white font-bold disabled:opacity-40 flex items-center gap-2"> <Sword className="w-5 h-5" /> Атакувати </button> <button onClick={onAutoAttack} disabled={!canAttack} className="px-4 py-2 rounded-xl bg-white/10 text-white font-bold disabled:opacity-40">Авто-удар (x3)</button> </div> <p className="text-center text-sm text-gray-300 mt-4">{rewardText}</p> </motion.div> </motion.div> )} </AnimatePresence>
+  );
+}
+
+function OnboardingModal({ open, onClose }) {
+  const steps = [ { title: '👋 Привіт!', text: 'Це твій монстр! Дай йому ім\'я та годуй його, щоб він ріс та ставав сильнішим.' }, { title: '🍎 Годування та XP', text: 'Купуй їжу в магазині 🛒. Їжа дає XP (досвід ✨) для еволюції монстра, а також відновлює твою Витривалість ⚡️.' }, { title: '🔥 Стрік Годування', text: 'Годуй монстра *щодня*, щоб підтримувати "вогник" стріку! Чим довший стрік, тим краще!' }, { title: '🎯 Квести та Очки', text: 'Виконуй щоденні квести (звички), щоб заробити Очки 🌟 (валюту) та відновити Витривалість ⚡️.' }, { title: '👹 Боси!', text: 'Кожні 5 квестів з\'являється Бос! Ти витрачаєш витривалість на кожну атаку. Бій закінчується, коли витривалість = 0 (або бос переможений)!' }, { title: '🏆 Винагороди', text: 'Перемога над босом дає очки + XP, рівні його HP, та відновлює всю витривалість!'}, { title: '⚔️ Магазин', text: 'За Очки 🌟 купуй їжу (для XP/Витривалості) або покращення Cили (🗡️) та Ефективності (📿). Корона 👑 дає 2x очок за квести!' }, ]; const [index, setIndex] = useState(0); useEffect(() => { if (!open) setIndex(0); }, [open]); const next = () => setIndex(i => Math.min(i + 1, steps.length - 1)); const prev = () => setIndex(i => Math.max(i - 1, 0)); const isLastStep = index === steps.length - 1; return ( <AnimatePresence> {open && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-6"> <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="max-w-md w-full rounded-3xl bg-white dark:bg-gray-800 p-6 shadow-2xl"> <h3 className="text-xl font-bold">{steps[index].title}</h3> <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">{steps[index].text}</p> <div className="mt-6 flex justify-between items-center"> <div> <button onClick={prev} disabled={index === 0} className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 disabled:opacity-40">Назад</button> </div> <div className="flex items-center gap-2 relative h-10"> <AnimatePresence initial={false} mode='wait'> {!isLastStep && ( <motion.div key="next-skip" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }} className="flex items-center gap-2"> <button onClick={next} className="px-3 py-2 rounded-xl bg-orange-500 text-white">Далі</button> <button onClick={onClose} className="px-3 py-2 rounded-xl bg-gray-200 dark:bg-gray-600">Пропустити</button> </motion.div> )} {isLastStep && ( <motion.div key="done" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}> <button onClick={onClose} className="px-3 py-2 rounded-xl bg-emerald-500 text-white">Готово</button> </motion.div> )} </AnimatePresence> </div> </div> </motion.div> </motion.div> )} </AnimatePresence> );
+}
+
+// -------------------- Головний компонент сторінки --------------------
 export default function ProgressPage() {
+  // --- Стани RPG ---
   const [habits, setHabits] = useLocalStorage('habits', []);
   const [points, setPoints] = useLocalStorage('userPoints', 0);
-  const [monsterEnergy, setMonsterEnergy] = useLocalStorage('monsterEnergy', 100);
+  const [playerXP, setPlayerXP] = useLocalStorage('playerXP', 0);
+  const [stamina, setStamina] = useLocalStorage('monsterStamina', 100);
   const [monsterHunger, setMonsterHunger] = useLocalStorage('monsterHunger', 0);
-  const [equipped, setEquipped] = useLocalStorage('equippedItems', {});
-  const [purchased, setPurchased] = useLocalStorage('purchasedItems', []);
+  const [purchasedCosmetics, setPurchasedCosmetics] = useLocalStorage('purchasedCosmetics', []);
+  const [equipmentStats, setEquipmentStats] = useLocalStorage('equipmentStats', { attack: 0, efficiency: 0 }); 
   const [bossHp, setBossHp] = useLocalStorage('bossHp', 500);
-  const [lastBossDefeat, setLastBossDefeat] = useLocalStorage('lastBossDefeat', null);
+  const [bossDefeatCount, setBossDefeatCount] = useLocalStorage('bossDefeatCount', 0);
+  const [firstVisit, setFirstVisit] = useLocalStorage('firstVisit', true);
+  const [characterName, setCharacterName] = useLocalStorage('characterName', 'Мій Монстр');
+  const [dailyFeedStreak, setDailyFeedStreak] = useLocalStorage('dailyFeedStreak', { count: 0, lastFed: null });
+  const [tasksSinceLastBoss, setTasksSinceLastBoss] = useLocalStorage('tasksSinceLastBoss', 0);
+  const [tempName, setTempName] = useState(characterName);
 
-  const [selectedHabit, setSelectedHabit] = useState(null);
+  // --- Локальні стани UI ---
   const [selectedItem, setSelectedItem] = useState(null);
   const [showShop, setShowShop] = useState(false);
   const [showBattle, setShowBattle] = useState(false);
   const [showEvolution, setShowEvolution] = useState(false);
   const [feeding, setFeeding] = useState(null);
-  const [achievement, setAchievement] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(firstVisit);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [isBossHit, setIsBossHit] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [shopTab, setShopTab] = useState('food'); 
+
   const scrollRef = useRef(null);
+  const today = todayISO();
+  const currentMaxBossHp = useMemo(() => 500 + bossDefeatCount * 100, [bossDefeatCount]);
 
-  const today = new Date().toISOString().split('T')[0];
-  const isSunday = new Date().getDay() === 0;
+  // --- Обчислювані дані ---
+  const habitsWithStreaks = useMemo(() => (Array.isArray(habits) ? habits : []).map(h => ({ ...h, ...calculateStreak(h.completedDays || []), isCompletedToday: (h.completedDays || []).includes(todayISO()) })), [habits]);
+  const stats = useMemo(() => ({ last7Days: Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); const dateStr = d.toISOString().split('T')[0]; const count = habitsWithStreaks.filter(h => (h.completedDays || []).includes(dateStr)).length; return { date: d.toLocaleDateString('uk-UA', { weekday: 'short' }), value: count }; }).reverse() }), [habitsWithStreaks]);
+  const { currentMonsterData, currentLevel, xpForNextLevel, xpInCurrentLevel } = useMemo(() => { if (!monsterEvolutions?.length) return { currentMonsterData: { name: 'Монстр', emoji: '❓', size: 100, bg: 'from-gray-400 to-gray-500', glow: '' }, currentLevel: 1, xpForNextLevel: 100, xpInCurrentLevel: 0 }; const currentEvo = monsterEvolutions.reduce((p, c) => (playerXP >= c.xpThreshold ? c : p), monsterEvolutions[0]); if (!currentEvo) return { currentMonsterData: monsterEvolutions[0], currentLevel: 1, xpForNextLevel: monsterEvolutions[1]?.xpThreshold || 100, xpInCurrentLevel: playerXP || 0 }; const idx = monsterEvolutions.indexOf(currentEvo); const nextEvo = monsterEvolutions[idx + 1]; const xpInLvl = playerXP - currentEvo.xpThreshold; const nextThresh = nextEvo ? nextEvo.xpThreshold : currentEvo.xpThreshold; const needed = nextEvo ? (nextThresh - currentEvo.xpThreshold) : (xpInLvl > 0 ? xpInLvl : 1); return { currentMonsterData: { ...currentEvo }, currentLevel: idx + 1, xpForNextLevel: Math.max(1, needed), xpInCurrentLevel: Math.max(0, xpInLvl) }; }, [playerXP]);
+  
+  const isCrownOwned = useMemo(() => purchasedCosmetics.includes('crown'), [purchasedCosmetics]);
+  const currentMonster = useMemo(() => ({
+    ...currentMonsterData,
+    level: currentLevel,
+    emoji: currentMonsterData.emoji
+  }), [currentMonsterData, currentLevel]);
 
-  // === СТРІК ===
-  const calculateStreak = (days) => {
-    if (!days?.length) return { current: 0, best: 0 };
-    const sorted = [...days].sort().reverse();
-    let current = 0;
-    let check = new Date(today);
-    while (sorted.includes(check.toISOString().split('T')[0])) {
-      current++;
-      check.setDate(check.getDate() - 1);
-    }
-    let best = current;
-    let temp = 1;
-    for (let i = 1; i < sorted.length; i++) {
-      const diff = (new Date(sorted[i-1]) - new Date(sorted[i])) / 86400000;
-      if (diff === 1) temp++;
-      else { best = Math.max(best, temp); temp = 1; }
-    }
-    best = Math.max(best, temp);
-    return { current, best };
-  };
+  const monsterDisplaySize = useMemo(() => { const baseSize = currentMonsterData?.size || 120; if (windowWidth < 768) return baseSize * 0.9; return baseSize * 1.1; }, [currentMonsterData?.size, windowWidth]);
+  
+  const currentAttackBonus = equipmentStats?.attack || 0;
+  const currentStaminaReduction = equipmentStats?.efficiency || 0;
+  
+  const currentAttackCost = useMemo(() => {
+    const baseCost = 20 + bossDefeatCount * 2;
+    return Math.max(5, baseCost - currentStaminaReduction);
+  }, [bossDefeatCount, currentStaminaReduction]);
+  
+  const canAttack = stamina >= currentAttackCost;
 
-  const habitsWithStreaks = useMemo(() => {
-    return (Array.isArray(habits) ? habits : []).map(h => {
-      const { current, best } = calculateStreak(h.completedDays);
-      return { ...h, currentStreak: current, bestStreak: Math.max(best, h.bestStreak || 0) };
-    });
-  }, [habits, today]);
-
-  // === СТАТИСТИКА + EXP ===
-  const stats = useMemo(() => {
-    const totalDone = habitsWithStreaks.reduce((s, h) => s + h.completedDays.length, 0);
-    const totalPoints = habitsWithStreaks.reduce((s, h) => s + h.currentStreak * 10 + h.completedDays.length * 5, 0);
-    const currentLevel = Math.floor(totalPoints / 100) + 1;
-    const expInLevel = totalPoints % 100;
-    const expNeeded = 100;
-
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      const count = habitsWithStreaks.filter(h => h.completedDays.includes(dateStr)).length;
-      return { date: d.toLocaleDateString('uk-UA', { weekday: 'short' }), value: count };
-    }).reverse();
-
-    return { totalDone, totalPoints, currentLevel, expInLevel, expNeeded, last7Days };
-  }, [habitsWithStreaks]);
-
-  // === МОНСТР ===
-  const currentMonster = monsterEvolutions.reduce((prev, curr) => 
-    (stats.currentLevel >= curr.level ? curr : prev), monsterEvolutions[0]);
-
-  // === ЕВОЛЮЦІЯ ===
-  const [prevLevel, setPrevLevel] = useState(stats.currentLevel);
+  // --- Ефекти ---
+  const [prevLevel, setPrevLevel] = useState(currentLevel); useEffect(() => { if (currentLevel > prevLevel) { setShowEvolution(true); setPrevLevel(currentLevel); setTimeout(() => setShowEvolution(false), 3500); setToast({ text: `Рівень ${currentLevel}! ${currentMonsterData?.name || ''}!`, type: 'success' }); } }, [currentLevel, prevLevel, currentMonsterData?.name, setToast]);
+  useEffect(() => { const i = setInterval(() => setMonsterHunger(h => Math.min(100, h + 2)), 120000); return () => clearInterval(i); }, [setMonsterHunger]);
+  useEffect(() => { if (tasksSinceLastBoss >= 5 && bossHp <= 0) { setBossHp(currentMaxBossHp); setShowBattle(true); setTasksSinceLastBoss(0); setToast({ text: `👹 З\'явився Бос Рівня ${bossDefeatCount + 1}! Час до бою!`, type: 'warning' }); } }, [tasksSinceLastBoss, bossHp, currentMaxBossHp, bossDefeatCount, setBossHp, setShowBattle, setTasksSinceLastBoss, setToast]);
+  
   useEffect(() => {
-    if (stats.currentLevel > prevLevel) {
-      setShowEvolution(true);
-      setPrevLevel(stats.currentLevel);
-      setTimeout(() => setShowEvolution(false), 3500);
+    if (stamina <= 0 && showBattle) {
+      const xpLost = Math.floor(xpInCurrentLevel / 3);
+      setPlayerXP(xp => Math.max(currentMonsterData.xpThreshold || 0, xp - xpLost));
+      setToast({text:`💀 Поразка! Ви втратили ${xpLost} XP! Відпочиньте та поїжте.`,type:'error'});
+      setShowBattle(false);
+      setStamina(10);
     }
-  }, [stats.currentLevel, prevLevel]);
+  }, [stamina, showBattle, xpInCurrentLevel, currentMonsterData?.xpThreshold, setPlayerXP, setStamina, setToast, setShowBattle]);
 
-  // === ГОЛОД (кожні 2 хв +5%) ===
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMonsterHunger(h => Math.min(100, h + 5));
-    }, 120000);
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 3000); return () => clearTimeout(t); }, [toast, setToast]);
+  useEffect(() => { setTempName(characterName); }, [characterName]);
+  useEffect(() => { const handleResize = () => setWindowWidth(window.innerWidth); window.addEventListener('resize', handleResize); return () => window.removeEventListener('resize', handleResize); }, []);
 
-  // === БОСС (щонеділі) ===
-  useEffect(() => {
-    if (isSunday && lastBossDefeat !== today) {
-      setBossHp(500);
-      setShowBattle(true);
-    }
-  }, [isSunday, lastBossDefeat, today]);
+  // --- Логіка гри ---
+  const handleCompleteHabit = (habitId) => { const habit=habitsWithStreaks.find(h=>h.id===habitId); if(!habit||habit.isCompletedToday){setToast({text:'Цей квест вже виконано сьогодні!',type:'info'});return;} const sB=habit.currentStreak*2; const bP=10; const bS=15; const iS=monsterHunger>80; const pM=iS?0.5:1; const crownBonus=isCrownOwned?2:1; const pR=Math.floor((bP+sB)*pM)*crownBonus; const sR=Math.floor(bS*pM); setPoints(p=>p+pR); setStamina(s=>Math.min(100,s+sR)); const newTasksCount=tasksSinceLastBoss+1; setTasksSinceLastBoss(newTasksCount); const uH=habits.map(h=>h.id===habitId?{...h,completedDays:[...(h.completedDays||[]),today]}:h); setHabits(uH); const nBC=5-newTasksCount; const toastText=`Квест! +${pR} очок${crownBonus>1?'(x2 👑)':''}, +${sR} витр. 🔥. До боса: ${nBC>=0?nBC:'Готовий!'}`; if(iS){setToast({text:`Квест! +${pR} очок${crownBonus>1?'(x2 👑)':''} (штраф 😥). До боса: ${nBC>=0?nBC:'Готовий!'}`,type:'warning'});}else{setToast({text:toastText,type:'success'});}};
+  const baseDamage=60;
+  const attackBoss=(isAuto=false)=>{if(!canAttack||isBossHit||bossHp<=0)return; const dmg=baseDamage+currentAttackBonus+(isAuto?10:0); const pFD=Math.floor(dmg/4); let bJD=false; setIsBossHit(true); setTimeout(()=>setIsBossHit(false),300); setStamina(s=>Math.max(0, s-currentAttackCost)); setBossHp(hp=>{const nH=Math.max(0,hp-dmg); if(nH<=0&&hp>0){bJD=true; const reward=currentMaxBossHp; setPoints(p=>p+reward); setPlayerXP(xp=>xp+reward); setStamina(100); setBossDefeatCount(c=>c+1); setToast({text:`Перемога! +${reward} очок, +${reward} XP! Витривалість відновлено!`,type:'success'});} return nH;}); setPoints(p=>p+pFD); if(!bJD)setToast({text:`Удар! -${currentAttackCost} витр. Завдано ${dmg} шкоди.`,type:'info'}); if(bJD){setTimeout(()=>setShowBattle(false),400);return;}};
+  const autoAttack=()=>{if(!canAttack){setToast({text:'Не вистачає витривалості!',type:'error'});return;} let att=0; const tH=()=>{if(att>=3||stamina<currentAttackCost||bossHp<=0)return; att++; attackBoss(true); setTimeout(()=>{if(bossHp>0&&stamina>=currentAttackCost&&att<3)setTimeout(tH,500);},500);}; tH();};
+  const handleAddHabit=(newHabit)=>{const h={...newHabit,id:Date.now().toString(),createdAt:today,completedDays:[]}; setHabits(p=>[...p,h]); setPoints(p=>p+30); setPlayerXP(x=>x+50); setShowAddModal(false); setToast({text:'Квест додано! +30 очок, +50 XP',type:'success'});};
+  const buyAndFeed=(item)=>{if(points<item.price){setToast({text:'Не вистачає очок!',type:'error'});return;} if(item.stat){setPoints(p=>p-item.price); setEquipmentStats(p=>({...p,[item.stat]:(p[item.stat]||0)+item.value})); setToast({text:`Куплено ${item.name}! ${item.effect}`,type:'success'});return;} if(item.type==='cosmetic'||item.type==='artifact'||item.type==='potion'){if(purchasedCosmetics.includes(item.id)){setToast({text:'Вже придбано',type:'info'});return;} setPurchasedCosmetics(p=>[...p,item.id]); setPoints(p=>p-item.price); setToast({text:`Куплено: ${item.name}!`,type:'success'});return;} setPoints(p=>p-item.price); if(item.stamina)setStamina(s=>Math.min(100,s+item.stamina)); if(item.hunger!==undefined)setMonsterHunger(h=>Math.max(0,h+item.hunger)); if(item.xp)setPlayerXP(x=>x+item.xp); setFeeding(item); setTimeout(()=>setFeeding(null),1800); if(dailyFeedStreak.lastFed!==today){const y=new Date(Date.now()-864e5).toISOString().split('T')[0]; const nC=dailyFeedStreak.lastFed===y?dailyFeedStreak.count+1:1; setToast({text:`Монстр з'їв ${item.name}. ${nC>1?`Стрік годування: ${nC}! 🔥`:'Новий стрік годування!'}`,type:'success'}); setDailyFeedStreak({count:nC,lastFed:today});}else{setToast({text:`Монстр з'їв ${item.name}`,type:'success'});}};
 
-  const attackBoss = () => {
-    const damage = 60 + (equipped.sword ? 20 : 0);
-    setBossHp(hp => {
-      const newHp = hp - damage;
-      if (newHp <= 0) {
-        setPoints(p => p + 250);
-        setMonsterEnergy(e => Math.min(100, e + 80));
-        setLastBossDefeat(today);
-        setShowBattle(false);
-        return 0;
-      }
-      return newHp;
-    });
-  };
-
-  // === ДОДАТИ ЗВИЧКУ ===
-  const handleAddHabit = (newHabit) => {
-    const habit = { ...newHabit, id: Date.now().toString(), createdAt: today, completedDays: [] };
-    setHabits(prev => [...prev, habit]);
-    setPoints(p => p + 30);
-    setMonsterEnergy(e => Math.min(100, e + 15));
-    setShowAddModal(false);
-  };
-
-  // === КУПИТИ + НАГОДУВАТИ ===
-  const buyAndFeed = (item) => {
-    if (points >= item.price && !purchased.includes(item.id)) {
-      setPurchased(prev => [...prev, item.id]);
-      setPoints(p => p - item.price);
-      setMonsterEnergy(e => Math.min(100, e + item.energy));
-      setMonsterHunger(h => Math.max(0, h - 25));
-      setFeeding(item);
-      setTimeout(() => setFeeding(null), 2000);
-    }
-  };
-
-  const equipItem = (item) => {
-    setEquipped(prev => ({ ...prev, [item.stat]: item.id }));
-  };
-
-  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
-  const scrollRight = () => scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
+  // --- UI допоміжні ---
+  const scrollLeft=()=>scrollRef.current?.scrollBy({left:-300,behavior:'smooth'}); const scrollRight=()=>scrollRef.current?.scrollBy({left:300,behavior:'smooth'});
+  const handleNameSubmit=()=>{ const trimmedName = tempName.trim(); if(trimmedName){setCharacterName(trimmedName); setShowNameModal(false); if(firstVisit){setShowOnboarding(true); setFirstVisit(false);}}};
+  const finishOnboarding=()=>{setShowOnboarding(false);};
+  const openEditNameModal = () => { setTempName(characterName); setShowNameModal(true); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-white overflow-x-hidden pb-20">
 
-      {/* ЧАСТКИ НА ФОНІ */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-64 h-64 rounded-full blur-3xl opacity-15"
-            style={{ background: `radial-gradient(circle, hsl(${i * 60}, 80%, 60%), transparent 70%)` }}
-            animate={{
-              x: [0, 150, 0],
-              y: [0, -150, 0],
-              scale: [1, 1.6, 1],
-            }}
-            transition={{ duration: 12 + i * 3, repeat: Infinity, ease: "easeInOut" }}
-          />
-        ))}
-      </div>
+      {/* Фонові частки */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10"> {[...Array(6)].map((_, i) => ( <motion.div key={i} className="absolute w-64 h-64 rounded-full blur-3xl opacity-15" style={{ background: `radial-gradient(circle, hsl(${i * 50}, 80%, 60%), transparent 70%)` }} animate={{ x: [0, (i % 2 ? 180 : -120), 0], y: [0, -150 + i * 10, 0], scale: [1, 1.6, 1] }} transition={{ duration: 12 + i * 2, repeat: Infinity, ease: 'easeInOut' }} /> ))} </div>
 
-      {/* МОНСТР + СТАТИСТИКА */}
-      <motion.header initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 text-center pt-12 pb-8">
-        <div className="flex flex-col items-center gap-6">
-          <motion.div
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="relative"
-          >
-            <div className={`w-${currentMonster.size/4} h-${currentMonster.size/4} rounded-full bg-gradient-to-br ${currentMonster.bg} flex items-center justify-center text-6xl shadow-2xl ${currentMonster.glow}`}>
-              {currentMonster.emoji}
+      {/* Адаптивний Хедер */}
+      <header className="relative z-10 pt-12 pb-6 px-4">
+        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="max-w-6xl w-full mx-auto p-4 sm:p-6 rounded-3xl backdrop-blur-2xl bg-white/60 dark:bg-gray-800/60 border border-white/30 shadow-xl relative">
+          <button onClick={() => setShowOnboarding(true)} className="absolute top-3 right-3 z-20 p-1.5 rounded-full bg-white/50 dark:bg-gray-700/50 hover:bg-white/70 transition" aria-label="Показати інструкцію"> <HelpCircle className="w-5 h-5 text-orange-500" /> </button>
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
+            <div className="md:w-1/3 flex-shrink-0 w-full flex justify-center"> <MonsterDisplay monster={currentMonster} size={monsterDisplaySize} showEvolution={showEvolution} /> </div>
+            <div className="md:w-2/3 flex-grow w-full flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-4 items-start">
+                 <div className="col-span-1 space-y-2 text-center sm:text-left">
+                   <div className="flex items-center justify-center sm:justify-start gap-2">
+                     <h3 className="text-xl sm:text-2xl md:text-3xl font-bold truncate">{characterName} {isCrownOwned && '👑'}</h3>
+                     <button onClick={openEditNameModal} className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition"> <Edit className="w-4 h-4 text-gray-500 dark:text-gray-400" /> </button>
+                   </div>
+                   <div className="flex items-center gap-4 justify-center sm:justify-start -mt-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">(Рів. {currentLevel})</p>
+                      <div className="flex items-center gap-1 text-xs sm:text-sm"> <Sword className="w-4 h-4 text-red-500" /> <span className="font-semibold">Сила: {baseDamage + currentAttackBonus}</span> </div>
+                   </div>
+                   <div> <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Досвід (XP)</p> <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2 overflow-hidden mt-0.5"> <div style={{ width: `${(xpInCurrentLevel / xpForNextLevel) * 100}%` }} className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all" /> </div> <p className="text-[10px] text-right mt-0.5">{xpInCurrentLevel}/{xpForNextLevel}</p> </div>
+                 </div>
+                 <div className="col-span-1 flex flex-col items-center justify-start pt-1"> <Flame className={`w-10 h-10 transition-colors ${dailyFeedStreak.lastFed === today ? 'text-orange-500' : 'text-gray-400 dark:text-gray-600'}`} /> <span className="text-4xl font-black bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">{dailyFeedStreak.count}</span> <p className="text-[10px] text-gray-600 dark:text-gray-400 text-center leading-tight">Днів стріку годування</p> </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5"> {[ { label: 'Сьогодні', value: habitsWithStreaks.filter(h => h.isCompletedToday).length, icon: Calendar, styles: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/30' }, { label: 'Стрік', value: Math.max(...(habitsWithStreaks.map(h => h.currentStreak).filter(Boolean)), 0), icon: Flame, styles: 'text-rose-600 bg-rose-500/10 border-rose-500/30' }, { label: 'Очки', value: points, icon: Star, styles: 'text-yellow-600 bg-yellow-500/10 border-yellow-500/30' }, { label: 'Магазин', value: <ShoppingBag className="w-4 h-4" />, onClick: () => { setShowShop(true); setShopTab('food'); }, styles: 'text-indigo-600 bg-indigo-500/10 border-indigo-500/30' }, ].map((stat, i) => ( <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }} onClick={stat.onClick} className={`p-2.5 rounded-lg border ${stat.styles} text-center ${stat.onClick ? 'cursor-pointer hover:scale-105 transition' : ''}`}> {stat.icon && <stat.icon className={`w-4 h-4 mx-auto mb-0.5`} />} <div className="text-base md:text-lg font-black">{stat.value}</div> <p className="text-[9px] md:text-[10px] font-semibold leading-tight">{stat.label}</p> </motion.div> ))} </div>
             </div>
-            {showEvolution && (
-              <motion.div
-                initial={{ scale: 0, rotate: 0 }}
-                animate={{ scale: [1, 2.5, 1], rotate: [0, 180, 360] }}
-                transition={{ duration: 1.5 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <Sparkles className="w-24 h-24 text-yellow-400" />
-                <div className="absolute text-3xl font-black text-white">ЕВОЛЮЦІЯ!</div>
-              </motion.div>
-            )}
+          </div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4 p-2.5 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-white/20">
+              <div className="space-y-1.5"> <div className="flex items-center gap-2"> <Zap className="w-4 h-4 text-indigo-400 flex-shrink-0" /> <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 overflow-hidden"> <div style={{ width: `${stamina}%` }} className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all" /> </div> <span className="text-xs font-semibold w-12 text-right">{stamina}%</span> </div> <div className="flex items-center gap-2"> <Cookie className="w-4 h-4 text-yellow-700 flex-shrink-0" /> <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 overflow-hidden"> <div style={{ width: `${monsterHunger}%` }} className="h-full bg-gradient-to-r from-yellow-600 to-orange-500 transition-all" /> </div> <span className="text-xs font-semibold w-12 text-right">{monsterHunger}%</span> </div> </div> <p className="text-[10px] text-center text-gray-500 dark:text-gray-400 mt-1.5 italic"> {monsterHunger > 80 ? 'Голодує! (штраф)' : stamina < 20 ? 'Втомлений' : 'Готовий!'} </p>
           </motion.div>
+        </motion.div>
+      </header>
 
-          <div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter bg-gradient-to-r from-orange-600 via-rose-600 to-red-600 bg-clip-text text-transparent">
-              {currentMonster.name}
-            </h1>
-            <p className="mt-1 text-lg">Рівень {stats.currentLevel} • EXP: {stats.expInLevel}/{stats.expNeeded}</p>
-
-            {/* HP БАР */}
-            <div className="flex justify-center items-center gap-3 mt-3">
-              <Heart className="w-6 h-6 text-red-500 animate-pulse" />
-              <div className="w-48 bg-gray-300 rounded-full h-5 overflow-hidden border border-gray-400">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${monsterEnergy}%` }}
-                  className="h-full bg-gradient-to-r from-green-400 to-emerald-500"
-                />
-              </div>
-              <span className="text-sm font-bold">{monsterEnergy}%</span>
-            </div>
-
-            {/* ГОЛОД */}
-            <div className="flex justify-center items-center gap-2 mt-2 text-sm">
-              <span>Голод:</span>
-              <div className="w-32 bg-gray-300 rounded-full h-3 overflow-hidden">
-                <motion.div
-                  animate={{ width: `${monsterHunger}%` }}
-                  className="h-full bg-gradient-to-r from-yellow-400 to-red-600"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* СТАТИСТИКА КАРТКИ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 mb-12">
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-          {[
-            { label: 'Сьогодні', value: habitsWithStreaks.filter(h => h.completedDays.includes(today)).length, icon: Calendar, color: 'emerald' },
-            { label: 'Стрік', value: Math.max(...habitsWithStreaks.map(h => h.currentStreak), 0), icon: Flame, color: 'rose' },
-            { label: 'Очки', value: points, icon: Star, color: 'yellow' },
-            { label: 'Босс', value: '👹', onClick: () => setShowBattle(true) },
-            { label: 'Їжа', value: '🍎', onClick: () => setShowShop(true) },
-            { label: 'Магазин', value: <ShoppingBag className="w-5 h-5" />, onClick: () => setShowShop(true) },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
-              onClick={stat.onClick}
-              className={`p-4 rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 border border-white/30 shadow-lg text-center ${stat.onClick ? 'cursor-pointer hover:scale-105 transition' : ''}`}
-            >
-              {stat.icon && <stat.icon className={`w-5 h-5 mx-auto mb-1 text-${stat.color}-600`} />}
-              <div className="text-2xl font-black">{stat.value}</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
+      {/* Квести (carousel) */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 mt-8 mb-10">
+         <div className="flex items-center justify-between mb-4"> <h2 className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">Квести (Натисни)</h2> <div className="flex gap-2"> <button onClick={scrollLeft} className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 transition"><ChevronLeft className="w-5 h-5" /></button> <button onClick={scrollRight} className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 transition"><ChevronRight className="w-5 h-5" /></button> </div> </div>
+         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"> {habitsWithStreaks.length === 0 ? ( <div className="flex items-center justify-center w-full py-16"> <div className="p-8 rounded-3xl bg-white/50 dark:bg-gray-800/50 border-2 border-dashed border-orange-400/50 text-center"> <Sparkles className="w-10 h-10 mx-auto text-orange-400 mb-3" /> <p className="text-gray-600 dark:text-gray-400 mb-4">Твій монстр чекає на квест!</p> <motion.button whileHover={{ scale: 1.05 }} onClick={() => setShowAddModal(true)} className="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold"> Почати пригоду </motion.button> </div> </div> ) : ( habitsWithStreaks.map((h, i) => { const isHot = h.currentStreak >= 7; return ( <motion.div key={h.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 + i * 0.05 }} whileHover={{ scale: 1.03 }} onClick={() => handleCompleteHabit(h.id)} className={`flex-shrink-0 w-72 cursor-pointer ${h.isCompletedToday ? 'opacity-60' : ''}`}> <div className={`relative p-6 rounded-3xl backdrop-blur-xl border-2 transition-all ${h.isCompletedToday ? 'border-green-500/50 bg-green-500/10' : isHot ? 'border-rose-500 shadow-lg shadow-rose-500/40' : 'border-white/30'} bg-white/70 dark:bg-gray-800/70 overflow-hidden`}> <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-rose-400 to-orange-600" /> <div className="relative z-10"> <div className="flex items-center justify-between mb-4"> <div className="text-3xl">{h.isCompletedToday ? '✅' : isHot ? '🔥' : '🎯'}</div> {isHot && !h.isCompletedToday && <Flame className="w-6 h-6 text-orange-500 animate-pulse" />} </div> <h3 className={`font-bold text-lg mb-2 ${h.isCompletedToday ? 'line-through' : ''}`}>{h.name}</h3> <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Стрік: {h.currentStreak} днів</p> <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-3"> <div className="bg-gradient-to-r from-rose-500 to-orange-500 h-full rounded-full transition-all" style={{ width: `${Math.min(h.currentStreak * 4, 100)}%` }} /> </div> </div> </div> </motion.div> ); }) )} </div>
       </section>
 
-      {/* КАРУСЕЛЬ КВЕСТІВ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">Квести</h2>
-          <div className="flex gap-2">
-            <button onClick={scrollLeft} className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 transition"><ChevronLeft className="w-5 h-5" /></button>
-            <button onClick={scrollRight} className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 transition"><ChevronRight className="w-5 h-5" /></button>
-          </div>
-        </div>
-
-        <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
-          {habitsWithStreaks.length === 0 ? (
-            <div className="flex items-center justify-center w-full py-16">
-              <div className="p-8 rounded-3xl bg-white/50 dark:bg-gray-800/50 border-2 border-dashed border-orange-400/50 text-center">
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Твій монстр чекає на квест!</p>
-                <motion.button whileHover={{ scale: 1.05 }} onClick={() => setShowAddModal(true)} className="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold">
-                  Почати пригоду
-                </motion.button>
-              </div>
-            </div>
-          ) : (
-            habitsWithStreaks.map((h, i) => {
-              const isHot = h.currentStreak >= 7;
-              return (
-                <motion.div
-                  key={h.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ scale: 1.05 }}
-                  onClick={() => setSelectedHabit(h)}
-                  className="flex-shrink-0 w-72 cursor-pointer"
-                >
-                  <div className={`relative p-6 rounded-3xl backdrop-blur-xl border-2 transition-all
-                    ${isHot ? `border-rose-500 shadow-lg ${currentMonster.glow}` : 'border-white/30'}
-                    bg-white/70 dark:bg-gray-800/70 overflow-hidden`}>
-                    <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-rose-400 to-orange-600" />
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-3xl">{h.currentStreak >= 7 ? '🔥' : '🎯'}</div>
-                        {isHot && <Flame className="w-6 h-6 text-orange-500 animate-pulse" />}
-                      </div>
-                      <h3 className="font-bold text-lg mb-2">{h.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Стрік: {h.currentStreak} днів</p>
-                      <div className="w-full bg-gray-300 rounded-full h-3">
-                        <div className="bg-gradient-to-r from-rose-500 to-orange-500 h-full rounded-full transition-all" style={{ width: `${Math.min(h.currentStreak * 4, 100)}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })
-          )}
-        </div>
-      </section>
-
-      {/* ГРАФІК + БОСС */}
+      {/* Прогрес + Босс */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 mb-20 grid lg:grid-cols-2 gap-12">
-        <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} className="p-8 rounded-3xl backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-white/30 shadow-2xl">
-          <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">Прогрес</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={stats.last7Days}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="date" stroke="#888" />
-              <YAxis stroke="#888" />
-              <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', borderRadius: '12px', border: 'none' }} />
-              <Area type="monotone" dataKey="value" stroke="#f97316" fill="#f97316" fillOpacity={0.6} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} className="p-8 rounded-3xl backdrop-blur-xl bg-red-500/10 dark:bg-red-900/20 border border-red-500/50 shadow-2xl">
-          <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">Босс тижня</h3>
-          <div className="text-center">
-            <div className="text-7xl mb-3">👹</div>
-            <p className="font-bold text-lg">Лінивий Дракон</p>
-            <div className="w-full bg-gray-700 rounded-full h-6 mt-4 overflow-hidden">
-              <motion.div
-                animate={{ width: `${(bossHp / 500) * 100}%` }}
-                className="h-full bg-gradient-to-r from-red-600 to-rose-600"
-              />
-            </div>
-            <p className="text-sm mt-2">{bossHp} / 500 HP</p>
-            <button onClick={attackBoss} className="mt-4 px-6 py-2 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition flex items-center gap-2 mx-auto">
-              <Sword className="w-5 h-5" /> Атакувати
-            </button>
-          </div>
-        </motion.div>
+        <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-8 rounded-3xl backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-white/30 shadow-2xl"> <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">Прогрес (виконані квести)</h3> <ResponsiveContainer width="100%" height={200}> <AreaChart data={stats.last7Days}> <CartesianGrid strokeDasharray="3 3" stroke="rgba(120,120,120,0.2)" /> <XAxis dataKey="date" stroke="#888" /> <YAxis stroke="#888" allowDecimals={false} /> <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', borderRadius: '12px', border: 'none' }} /> <Area type="monotone" dataKey="value" name="Квести" stroke="#f97316" fill="#f97316" fillOpacity={0.6} /> </AreaChart> </ResponsiveContainer> </motion.div>
+        <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-8 rounded-3xl backdrop-blur-xl bg-red-500/10 dark:bg-red-900/20 border border-red-500/50 shadow-2xl">
+           <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">Босс (кожні 5 квестів)</h3>
+           <div className="text-center">
+             <div className="text-7xl mb-3">👹</div>
+             <p className="font-bold text-lg">Лінивий Дракон (Рів. {bossDefeatCount + 1})</p>
+             <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-6 mt-4 overflow-hidden"> <motion.div animate={{ width: `${(bossHp / currentMaxBossHp) * 100}%` }} className="h-full bg-gradient-to-r from-red-600 to-rose-600" /> </div>
+             <p className="text-sm mt-2">{bossHp > 0 ? `${bossHp} / ${currentMaxBossHp} HP` : 'Переможений!'}</p>
+             {tasksSinceLastBoss < 5 && bossHp <= 0 && ( <p className="text-sm text-yellow-500 mt-2 font-semibold"> Ще {5 - tasksSinceLastBoss} {5 - tasksSinceLastBoss === 1 ? 'квест' : 'квести'} до появи боса! </p> )}
+             <div className="mt-4 flex items-center gap-3 justify-center"> <button onClick={() => setShowBattle(true)} className="px-6 py-2 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition flex items-center gap-2" disabled={stamina < currentAttackCost || bossHp <= 0}> {stamina < currentAttackCost ? <Zap className="w-5 h-5"/> : <Sword className="w-5 h-5" />} {stamina < currentAttackCost ? 'Мало витривалості' : bossHp <=0 ? 'Переможений' : 'Атакувати'} </button> <button onClick={() => { setShowShop(true); setShopTab('food'); }} className="px-4 py-2 rounded-xl bg-black/10 dark:bg-white/10 text-gray-800 dark:text-white font-bold">Магазин</button> </div>
+             <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Нагорода за перемогу: {currentMaxBossHp} очок, {currentMaxBossHp} XP та відновлення витривалості!</p>
+           </div>
+         </motion.div>
       </section>
 
-      {/* МАГАЗИН */}
-      <AnimatePresence>
-        {showShop && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-6" onClick={() => setShowShop(false)}>
-            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="max-w-4xl w-full max-h-[80vh] overflow-y-auto p-8 rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/20 shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Магічний ринок</h3>
-                <button onClick={() => setShowShop(false)} className="p-2 rounded-xl hover:bg-white/20"><X className="w-6 h-6" /></button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {[...foodItems, ...magicItems].map(item => {
-                  const owned = purchased.includes(item.id);
-                  return (
-                    <motion.div
-                      key={item.id}
-                      whileHover={{ scale: 1.05 }}
-                      onClick={() => !owned && setSelectedItem(item)}
-                      className={`p-5 rounded-2xl backdrop-blur-xl border-2 text-center transition-all ${owned ? 'border-green-500 bg-green-500/10' : 'border-white/30 bg-white/50 dark:bg-gray-800/50'} ${!owned && 'cursor-pointer'}`}
-                    >
-                      <div className="text-5xl mb-2">{item.emoji}</div>
-                      <p className="font-bold text-sm">{item.name}</p>
-                      <p className="text-xs text-gray-600">{item.price} очок</p>
-                      {item.effect && <p className="text-xs text-emerald-600">{item.effect}</p>}
-                      <p className="text-xs mt-1">{owned ? 'Придбано' : 'Купити'}</p>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* --- МОДАЛЬНІ ВІКНА --- */}
+      <AnimatePresence> {showShop && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-6" onClick={() => setShowShop(false)}> <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="max-w-4xl w-full max-h-[80vh] overflow-y-auto p-6 md:p-8 rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/20 shadow-2xl" onClick={e => e.stopPropagation()}> <div className="flex justify-between items-center mb-6"> <h3 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Магічний ринок</h3> <button onClick={() => setShowShop(false)} className="p-2 rounded-xl hover:bg-black/10 dark:hover:bg-white/20"><X className="w-6 h-6" /></button> </div> <div className="flex gap-2 mb-6"> <button onClick={() => setShopTab('food')} className={`px-5 py-2 rounded-xl font-bold transition-all ${shopTab === 'food' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}> <UtensilsCrossed className="w-4 h-4 inline-block mr-1.5 -mt-0.5" /> Їжа та XP </button> <button onClick={() => setShopTab('equipment')} className={`px-5 py-2 rounded-xl font-bold transition-all ${shopTab === 'equipment' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}> <Briefcase className="w-4 h-4 inline-block mr-1.5 -mt-0.5" /> Спорядження </button> </div> <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"> {shopTab === 'food' && foodItems.map(item => { const cA = points < item.price; return ( <motion.div key={item.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} whileHover={{ scale: cA ? 1 : 1.02 }} onClick={()=>{if(cA)setToast({text:'Не вистачає очок!',type:'error'});else setSelectedItem(item);}} className={`p-4 rounded-2xl backdrop-blur-xl border-2 text-center transition-all ${cA?'opacity-60 grayscale cursor-not-allowed':'cursor-pointer border-white/30 bg-white/50 dark:bg-gray-800/50'}`}> <div className="text-4xl mb-1">{item.emoji}</div> <p className="font-bold text-sm mb-0.5">{item.name}</p> <p className="text-xs text-gray-600 dark:text-gray-400">{item.price} <Star className="w-3 h-3 inline-block -mt-1 text-yellow-500" /></p> {item.effect && <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">{item.effect}</p>} </motion.div> ); })} {shopTab === 'equipment' && equipmentItems.map(item => { const cA=points<item.price; const iC=item.type==='cosmetic'; const iP=item.type==='potion'; const iA=item.type==='artifact'; const cO=(iC||iP||iA)&&purchasedCosmetics.includes(item.id); const Icon=item.stat==='attack'?Sword:Zap; const TypeIcon=iP?FlaskConical:iA?Key:null; return ( <motion.div key={item.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} whileHover={{ scale: (cA||cO)?1:1.02 }} onClick={()=>{if(cO)setToast({text:'Вже придбано!',type:'info'});else if(cA)setToast({text:'Не вистачає очок!',type:'error'});else setSelectedItem(item);}} className={`p-4 rounded-2xl backdrop-blur-xl border-2 text-center transition-all ${(cA||cO)?'opacity-60 grayscale cursor-not-allowed':'cursor-pointer border-white/30 bg-white/50 dark:bg-gray-800/50'}`}> <div className="text-4xl mb-1">{item.emoji}</div> <p className="font-bold text-sm mb-0.5">{item.name}</p> {!(iC&&cO)&&<p className="text-xs text-gray-600 dark:text-gray-400">{item.price} <Star className="w-3 h-3 inline-block -mt-1 text-yellow-500" /></p>} {item.effect&&(<p className={`text-[11px] mt-1 flex items-center justify-center gap-1 ${item.stat==='attack'?'text-red-600 dark:text-red-400':item.stat==='efficiency'?'text-blue-600 dark:text-blue-400':'text-purple-500'}`}> {item.stat&&<Icon className="w-3 h-3"/>} {TypeIcon&&<TypeIcon className="w-3 h-3"/>} {item.effect} </p>)} <p className="text-xs mt-1.5 font-semibold flex items-center justify-center gap-1.5"> {cO?<><CheckCircle className="w-3 h-3 text-green-600"/> Придбано</>:'Купити'} </p> </motion.div> ); })} </div> </motion.div> </motion.div> )} </AnimatePresence>
+      <AnimatePresence> {selectedItem && (selectedItem.hunger !== undefined || selectedItem.stat || selectedItem.type === 'potion' || selectedItem.type === 'artifact' || (selectedItem.type === 'cosmetic' && !purchasedCosmetics.includes(selectedItem.id))) && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-[990] p-6" onClick={() => setSelectedItem(null)}> <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="max-w-md w-full p-8 rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/20 shadow-2xl" onClick={e => e.stopPropagation()}> <div className="text-center"> <div className="text-6xl mb-4">{selectedItem.emoji}</div> <h3 className="text-2xl font-black mb-2">{selectedItem.name}</h3> <p className="text-gray-600 dark:text-gray-400 mb-4">Вартість: {selectedItem.price} очок</p> {selectedItem.effect && <p className="text-emerald-600 dark:text-emerald-400 text-sm mb-4">{selectedItem.effect}</p>} <div className="flex gap-3"> <button onClick={() => { buyAndFeed(selectedItem); setSelectedItem(null); }} disabled={points < selectedItem.price} className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold disabled:opacity-50"> {selectedItem.hunger !== undefined ? 'Купити та нагодувати' : 'Купити'} </button> <button onClick={() => setSelectedItem(null)} className="px-6 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold"> Скасувати </button> </div> </div> </motion.div> </motion.div> )} </AnimatePresence>
+      <AnimatePresence> {feeding && ( <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="fixed inset-0 flex items-center justify-center z-[995] pointer-events-none"> <motion.div animate={{ y: [0, -120, 0], rotate: [0, 360, 720] }} transition={{ duration: 1.6 }} className="text-9xl"> {feeding.emoji} </motion.div> <motion.p initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} className="absolute text-6xl font-black text-yellow-400 drop-shadow-lg">YUMMY!</motion.p> </motion.div> )} </AnimatePresence>
+      <AnimatePresence> {showAddModal && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-4" onClick={() => setShowAddModal(false)}> <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} onClick={e => e.stopPropagation()} className="relative w-full max-w-md"> <div className="absolute inset-0 bg-gradient-to-br from-orange-400 via-rose-400 to-red-400 rounded-3xl blur-xl opacity-50" /> <div className="relative backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 rounded-3xl p-8 border border-white/20 shadow-2xl"> <div className="flex justify-between items-center mb-6"> <h3 className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">Новий квест</h3> <button onClick={() => setShowAddModal(false)} className="p-2 rounded-xl hover:bg-black/10 dark:hover:bg-white/20"><Plus className="w-6 h-6 rotate-45" /></button> </div> <AddHabitForm onAdd={handleAddHabit} onCancel={() => setShowAddModal(false)} /> </div> </motion.div> </motion.div> )} </AnimatePresence>
 
-      {/* КУПИТИ ПРЕДМЕТ */}
-      <AnimatePresence>
-        {selectedItem && !purchased.includes(selectedItem.id) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-6" onClick={() => setSelectedItem(null)}>
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="max-w-md w-full p-8 rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/20 shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="text-center">
-                <div className="text-6xl mb-4">{selectedItem.emoji}</div>
-                <h3 className="text-2xl font-black mb-2">{selectedItem.name}</h3>
-                <p className="text-gray-600 mb-4">Вартість: {selectedItem.price} очок</p>
-                {selectedItem.effect && <p className="text-emerald-600 text-sm mb-4">{selectedItem.effect}</p>}
-                <div className="flex gap-3">
-                  <button onClick={() => { buyAndFeed(selectedItem); setSelectedItem(null); }} disabled={points < selectedItem.price} className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold disabled:opacity-50">
-                    {selectedItem.energy ? 'Купити та нагодувати' : 'Купити'}
-                  </button>
-                  <button onClick={() => setSelectedItem(null)} className="px-6 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold">
-                    Скасувати
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <BossBattleModal open={showBattle} onClose={() => setShowBattle(false)} bossHp={bossHp} maxBossHp={currentMaxBossHp} onAttack={() => attackBoss(false)} playerStamina={stamina} attackCost={currentAttackCost} canAttack={canAttack} onAutoAttack={autoAttack} rewardText={`Нагорода за перемогу: ${currentMaxBossHp} очок, ${currentMaxBossHp} XP + повне відновлення!`} isBossHit={isBossHit} />
+      
+      <AnimatePresence> {showNameModal && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-6"> <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="max-w-md w-full rounded-3xl bg-white dark:bg-gray-800 p-6 shadow-2xl" onClick={e => e.stopPropagation()}> <h3 className="text-2xl font-bold mb-4">{firstVisit ? 'Як звати твого монстра?' : 'Змінити ім\'я монстра'}</h3> <div className="relative"> <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /> <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} placeholder="Наприклад, 'Вогник'" className="w-full pl-10 pr-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500" /> </div> <div className="mt-4 flex gap-3"> <button onClick={handleNameSubmit} disabled={!tempName.trim()} className="flex-1 px-6 py-3 rounded-xl bg-orange-500 text-white font-bold disabled:opacity-50 transition"> {firstVisit ? 'Почати пригоду' : 'Зберегти'} </button> {!firstVisit && <button onClick={() => setShowNameModal(false)} className="px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold"> Скасувати </button>} </div> </motion.div> </motion.div> )} </AnimatePresence>
+      <OnboardingModal open={showOnboarding} onClose={finishOnboarding} />
+      <div className="fixed right-6 bottom-6 z-[9999]"> <AnimatePresence> {toast && ( <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg ${toast.type === 'success' ? 'bg-green-600 text-white' : toast.type === 'error' ? 'bg-red-600 text-white' : toast.type === 'warning' ? 'bg-yellow-500 text-black' : 'bg-white/90 dark:bg-gray-800/90 border border-white/20'}`}> {toast.type === 'success' && <CheckCircle className="w-5 h-5" />} {toast.type === 'error' && <AlertTriangle className="w-5 h-5" />} {toast.type === 'warning' && <AlertTriangle className="w-5 h-5" />} {toast.type === 'info' && <Info className="w-5 h-5" />} <div className="text-sm font-semibold">{toast.text}</div> </motion.div> )} </AnimatePresence> </div>
 
-      {/* ГОДУВАННЯ */}
-      <AnimatePresence>
-        {feeding && (
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-            <motion.div
-              animate={{ y: [0, -120, 0], rotate: [0, 360, 720] }}
-              transition={{ duration: 1.5 }}
-              className="text-9xl"
-            >
-              {feeding.emoji}
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute text-6xl font-black text-yellow-400 drop-shadow-lg"
-            >
-              YUMMY!
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ДОДАТИ КВЕСТ */}
-      <AnimatePresence>
-        {showAddModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-4" onClick={() => setShowAddModal(false)}>
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} onClick={e => e.stopPropagation()} className="relative w-full max-w-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 via-rose-400 to-red-400 rounded-3xl blur-xl opacity-50" />
-              <div className="relative backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 rounded-3xl p-8 border border-white/20 shadow-2xl">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">Новий квест</h3>
-                  <button onClick={() => setShowAddModal(false)} className="p-2 rounded-xl hover:bg-white/20"><Plus className="w-6 h-6 rotate-45" /></button>
-                </div>
-                <AddHabitForm onAdd={handleAddHabit} onCancel={() => setShowAddModal(false)} />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
