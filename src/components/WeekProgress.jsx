@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Calendar, TrendingUp } from 'lucide-react';
 
 const WeekProgress = ({ habits }) => {
-  // Останні 7 днів
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
@@ -16,7 +15,6 @@ const WeekProgress = ({ habits }) => {
     };
   });
 
-  // Підрахунок виконань по днях
   const weekData = last7Days.map(day => {
     const completed = habits.filter(h => 
       h.completedDays?.includes(day.date)
@@ -32,10 +30,8 @@ const WeekProgress = ({ habits }) => {
     };
   });
 
-  // Середній прогрес за тиждень
   const avgProgress = weekData.reduce((sum, day) => sum + day.percentage, 0) / 7;
 
-  // Найкращий день
   const bestDay = weekData.reduce((best, day) => 
     day.percentage > best.percentage ? day : best
   , weekData[0]);
@@ -75,7 +71,7 @@ const WeekProgress = ({ habits }) => {
       {/* Візуалізація тижня */}
       <div className='grid grid-cols-7 gap-2'>
         {weekData.map((day, index) => {
-          const height = Math.max(day.percentage, 10); // Мінімум 10% для видимості
+          const height = Math.max(day.percentage, 10); 
           
           return (
             <motion.div

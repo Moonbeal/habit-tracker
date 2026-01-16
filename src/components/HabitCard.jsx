@@ -7,7 +7,6 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
   const today = new Date().toISOString().split('T')[0];
   const isCompletedToday = habit.completedDays.includes(today);
   
-  // Іконки категорій
   const categoryEmojis = {
     health: '🏥',
     sport: '⚽',
@@ -17,7 +16,6 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
     other: '📌'
   };
 
-  // Назви категорій українською
   const categoryNames = {
     health: 'Здоров\'я',
     sport: 'Спорт',
@@ -27,7 +25,6 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
     other: 'Інше'
   };
 
-  // Прогрес за останні 7 днів
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
@@ -45,12 +42,6 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
   const completionRate = (habit.completedDays.length / Math.max(1, getDaysSinceStart(habit.startDate))) * 100;
 
   return (
-    // ❗️ ЗМІНА:
-    // - Ми прибираємо whileHover, оскільки 'card-3d' з вашого CSS дає кращий ефект
-    // - Додано h-full для однакової висоти (вимагає 'h-full' у motion.div у HabitsPage.jsx)
-    // - Додано flex flex-col для правильної внутрішньої верстки
-    // - Додано 'shadow-purple'
-    // - Додано isCompletedToday ? 'pulse-glow' : '' для ефекту сяйва
     <motion.div
       className={`glass-card glass-hover rounded-2xl p-5 shadow-purple transition-all relative overflow-hidden h-full flex flex-col card-3d ${
         isCompletedToday ? 'pulse-glow' : ''
@@ -68,12 +59,9 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
           <div className='flex items-start justify-between mb-3'>
             <div className='flex-1 pr-2'>
               <div className='flex items-center gap-2 mb-1'>
-                {/* ❗️ ЗМІНА: Додано клас habit-card-emoji */}
                 <span className='habit-card-emoji'>{categoryEmojis[habit.category]}</span>
-                {/* ❗️ ЗМІНА: Додано клас habit-card-title */}
                 <h3 className='font-bold text-purple-900 dark:text-purple-100 habit-card-title'>{habit.name}</h3>
               </div>
-              {/* ❗️ ЗМІНА: Додано клас habit-card-text */}
               <p className='text-purple-600 dark:text-purple-400 mb-1 habit-card-text'>{categoryNames[habit.category]}</p>
               {habit.description && (
                 <p className='text-gray-600 dark:text-gray-400 habit-card-text'>{habit.description}</p>

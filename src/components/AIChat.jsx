@@ -13,7 +13,6 @@ const AIChat = ({ habits = [] }) => {
   const location = useLocation();
   const { isInitialized, loading, sendMessage, startChat } = useAI();
 
-  // Швидкі кнопки
   const quickActions = [
     { icon: Zap, text: 'Мотивуй мене!', emoji: '🔥' },
     { icon: TrendingUp, text: 'Як мій прогрес?', emoji: '📈' },
@@ -23,10 +22,8 @@ const AIChat = ({ habits = [] }) => {
     { icon: Calendar, text: 'Що робити сьогодні?', emoji: '📅' },
   ];
 
-  // Ініціалізація чату при відкритті
   useEffect(() => {
     if (isOpen && isInitialized && messages.length === 0) {
-      // Початкове повідомлення від AI
       const welcomeMessage = {
         role: 'assistant',
         content: '👋 Привіт! Я твій персональний асистент для формування звичок. Можу допомогти з мотивацією, порадами та аналізом твоїх звичок. Про що хочеш поговорити?',
@@ -37,12 +34,10 @@ const AIChat = ({ habits = [] }) => {
     }
   }, [isOpen, isInitialized]);
 
-  // Автоскрол до останнього повідомлення
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Створюємо повний контекст про користувача
   const getFullContext = (userMessage) => {
     const stats = {
       totalHabits: habits.length,
@@ -89,7 +84,6 @@ ${habitsList.length > 0 ? `ЗВИЧКИ КОРИСТУВАЧА:\n${habitsList.ma
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    // Відправляємо з повним контекстом
     const contextMessage = getFullContext(textToSend);
     const response = await sendMessage(contextMessage);
 
@@ -103,7 +97,6 @@ ${habitsList.length > 0 ? `ЗВИЧКИ КОРИСТУВАЧА:\n${habitsList.ma
     }
   };
 
-  // Обробник швидких кнопок
   const handleQuickAction = (actionText) => {
     handleSendMessage(actionText);
   };

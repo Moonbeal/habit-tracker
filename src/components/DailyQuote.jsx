@@ -57,7 +57,6 @@ const DailyQuote = () => {
     }
   ];
 
-  // Вибираємо цитату на основі дня року (щоб була однакова протягом дня)
   const dayOfYear = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);

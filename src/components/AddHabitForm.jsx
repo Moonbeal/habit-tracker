@@ -23,7 +23,7 @@ const itemVariants = {
 };
 
 const AddHabitForm = ({ onAdd, onCancel }) => {
-  const [mode, setMode] = useState("choose"); // choose | ai | manual
+  const [mode, setMode] = useState("choose"); 
   const [name, setName] = useState("");
   const [category, setCategory] = useState(""); 
   const [description, setDescription] = useState("");
@@ -38,22 +38,16 @@ const AddHabitForm = ({ onAdd, onCancel }) => {
     setAiSuggestions([]);
     setShowManualAfterAI(false);
 
-    // ❗️❗️❗️ ОСЬ ГОЛОВНА ЗМІНА ❗️❗️❗️
-    // Беремо ключ із localStorage, який був збережений у SettingsModal
     const apiKey = localStorage.getItem('gemini_api_key');
 
-    // Перевіряємо, чи є ключ
     if (!apiKey) {
       console.error("API ключ не знайдено в localStorage!");
-      // У реальному додатку тут має бути гарне модальне вікно
       alert("API ключ не знайдено. Будь ласка, додайте ваш API ключ у Налаштуваннях.");
       setAiLoading(false);
       return; 
     }
-    // ❗️❗️❗️ Кінець зміни ❗️❗️❗️
 
     try {
-      // Використовуємо ключ з localStorage
       const genAI = new GoogleGenerativeAI(apiKey); 
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -88,7 +82,6 @@ const AddHabitForm = ({ onAdd, onCancel }) => {
       }
     } catch (err) {
       console.error("AI error:", err);
-      // Тепер ця помилка буде показувати, що ключ невалідний (якщо він невалідний)
       alert("Помилка генерації. Можливо, ваш API ключ недійсний або закінчився. Перевірте його в Налаштуваннях.");
     } finally {
       setAiLoading(false);

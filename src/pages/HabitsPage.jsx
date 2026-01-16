@@ -41,7 +41,6 @@ const HabitsPage = () => {
   const todayCompletions = habits.filter(h => h.completedDays.includes(today)).length;
   const progress = habits.length > 0 ? (todayCompletions / habits.length) * 100 : 0;
 
-  // --- Логіка для статистики (без змін) ---
   const getDaysSinceStart = (startDate) => {
     const start = new Date(startDate);
     const today = new Date();
@@ -71,7 +70,6 @@ const HabitsPage = () => {
     }
   }
 
-  // --- Функції-обробники (без змін) ---
   const handleAddHabit = (habit) => {
     setHabits([...habits, { ...habit, bestStreak: 0, currentStreak: 0 }]);
     setShowAddForm(false);
@@ -84,7 +82,7 @@ const HabitsPage = () => {
     setHabits(habits.map(habit => {
       if (habit.id === habitId) {
         const isCompleted = habit.completedDays.includes(today);
-        if (isCompleted) return habit; // Не дозволяти "відмінити"
+        if (isCompleted) return habit; 
         const newCompletedDays = [...habit.completedDays, today].sort();
         const { currentStreak, bestStreak } = calculateStreaks(newCompletedDays);
         if (currentStreak === 1) setMotivationalMessage('Перший день — чудово 💫');
@@ -191,7 +189,6 @@ const HabitsPage = () => {
     });
 
 
-  // --- JSX ---
   return (
     <div className='max-w-7xl mx-auto px-4 py-8 md:py-12 space-y-8'>
       
@@ -199,7 +196,6 @@ const HabitsPage = () => {
       <div className='space-y-6'>
         <div className='flex flex-col sm:flex-row justify-between sm:items-center gap-4'>
           <div>
-            {/* ❗️ ЗМІНА: Додано 'animate-gradient' з вашого index.css */}
             <h2 className='text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-400 pb-2 animate-gradient'>
               Мої Звички
             </h2>
@@ -212,7 +208,6 @@ const HabitsPage = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowStats(true)}
-              // ❗️ ЗМІНА: Використовуємо 'glass' замість 'glass-card'
               className='glass text-purple-700 dark:text-purple-200 p-4 rounded-2xl shadow-purple'
               aria-label="Показати статистику"
             >
@@ -235,7 +230,6 @@ const HabitsPage = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              // ❗️ ЗМІНА: Використовуємо 'glass' замість 'glass-card'
               className='glass p-4 rounded-xl shadow-purple'
             >
               <div className='flex justify-between items-center mb-2'>
@@ -267,7 +261,6 @@ const HabitsPage = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            // ❗️ ЗМІНА: Використовуємо 'glass' замість 'glass-card'
             className='glass border-l-4 border-purple-500 p-4 rounded-xl shadow-purple' 
           >
             <p className='text-purple-900 dark:text-purple-100 font-semibold'>{motivationalMessage}</p>
@@ -276,7 +269,6 @@ const HabitsPage = () => {
       </AnimatePresence>
 
       {/* Фільтри */}
-      {/* ❗️ ЗМІНА: Використовуємо 'glass' замість 'glass-card' */}
       <div className='glass p-4 rounded-xl shadow-purple'>
         <HabitFilters
             searchQuery={searchQuery}
@@ -295,10 +287,8 @@ const HabitsPage = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          // ❗️ ЗМІНА: 'glass-card' тут залишається, бо це основний блок
           className='glass-card text-center p-12 rounded-2xl flex flex-col items-center gap-6'
         >
-          {/* ❗️ ЗМІНА: Додано 'animate-float-slow' з вашого index.css */}
           <ClipboardList size={48} className='text-purple-400 animate-float-slow' />
           <p className='text-purple-700 dark:text-purple-300 text-xl font-medium'>
             Ваш список звичок порожній
@@ -315,7 +305,6 @@ const HabitsPage = () => {
         </motion.div>
       ) : filteredAndSortedHabits.length === 0 ? (
       <div className='glass-card text-center p-12 rounded-2xl flex flex-col items-center gap-4'>
-          {/* ❗️ ЗМІНА: Додано 'animate-float-slow' з вашого index.css */}
           <SearchX size={48} className='text-purple-400 animate-float-slow' />
         <p className='text-purple-700 dark:text-purple-300 text-xl font-medium'>
             Нічого не знайдено
@@ -336,7 +325,6 @@ const HabitsPage = () => {
           key={habit.id}
           layout
                 variants={itemVariants}
-          // ❗️ ЗМІНА: Додано h-full, щоб всі картки в сітці були однакової висоти
           className='h-full'
         >
           <HabitCard
@@ -350,8 +338,6 @@ const HabitsPage = () => {
         ))}
       </motion.div>
       )}
-
-      {/* --- Модальні вікна (Без змін) --- */}
       
       {/* Модальне вікно статистики */}
       <AnimatePresence>
@@ -441,7 +427,6 @@ const HabitsPage = () => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-            // ❗️ ЗМІНА: Повертаємо вузьку ширину
           className='glass-strong rounded-2xl p-6 max-w-md w-full max-h-full overflow-y-auto shadow-glow'
           >
           <div className='flex justify-between items-center mb-4'>
@@ -474,7 +459,6 @@ const HabitsPage = () => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-            // ❗️ ЗМІНА: Повертаємо вузьку ширину
         className='glass-strong rounded-2xl p-6 max-w-md w-full max-h-full overflow-y-auto shadow-glow'
         >
         <div className='flex justify-between items-center mb-4'>

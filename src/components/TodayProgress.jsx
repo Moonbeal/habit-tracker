@@ -17,9 +17,7 @@ const TodayProgress = ({ habits, onToggleComplete }) => {
     setShowConfetti(prev => prev + 1);
   };
 
-  // Групування по часу дня
   const getTimeOfDay = (habit) => {
-    // Можна додати поле timeOfDay до звички, поки що розподіляємо рівномірно
     const index = habits.indexOf(habit);
     if (index < habits.length / 3) return 'morning';
     if (index < (habits.length * 2) / 3) return 'day';

@@ -38,7 +38,6 @@ export default function MainPage() {
   const VISIBLE_CARDS = 3;
   const CARD_WIDTH = 320;
 
-  // === 3D-паралакс ===
   useEffect(() => {
     const handleMouseMove = (e) => {
       const rect = document.getElementById('hero-card')?.getBoundingClientRect();
@@ -51,7 +50,6 @@ export default function MainPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mouseX, mouseY]);
 
-  // === Стрік ===
   const getCurrentStreak = (completedDays) => {
     if (!completedDays?.length) return 0;
     const sorted = [...completedDays].sort();
@@ -65,7 +63,6 @@ export default function MainPage() {
     return streak;
   };
 
-  // === Додавання / виконання ===
   const handleAddHabit = (habit) => {
     const newHabit = {
       ...habit,
@@ -91,7 +88,6 @@ export default function MainPage() {
     }));
   };
 
-  // === Гортання по колу ===
   const scrollToIndex = (index) => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
@@ -115,7 +111,6 @@ export default function MainPage() {
     scrollToIndex(newIndex);
   };
 
-  // === Статистика ===
   const stats = {
     total: habits.length,
     completedToday: habits.filter(h => h.completedDays.includes(today)).length,

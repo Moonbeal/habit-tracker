@@ -12,7 +12,6 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import AddHabitForm from '../components/AddHabitForm';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// --- ДАНІ ---
 const monsterEvolutions = [
   { xpThreshold: 0,    name: 'Яйце',    emoji: '🥚', size: 100, bg: 'from-amber-200 to-yellow-300', glow: 'shadow-amber-500/50' },
   { xpThreshold: 100,  name: 'Малюк',   emoji: '🐣', size: 120, bg: 'from-pink-300 to-rose-400', glow: 'shadow-pink-500/50' },
@@ -50,11 +49,9 @@ const equipmentItems = [
   { id: 'golden_key', name: 'Золотий Ключ', price: 15000, emoji: '🔑', type: 'artifact', effect: 'Відкриває таємниці?' }, 
 ];
 
-// --- УТИЛІТИ (Без змін) ---
 const todayISO = () => new Date().toISOString().split('T')[0];
 const calculateStreak = (days) => { if (!Array.isArray(days)||days.length===0)return{current:0,best:0}; const s=[...new Set(days)].sort((a,b)=>new Date(b)-new Date(a)); let c=0; let k=new Date(todayISO()); while(s.includes(k.toISOString().split('T')[0])){c++;k.setDate(k.getDate()-1);} let b=0; let t=1; for(let i=1;i<s.length;i++){const d=(new Date(s[i-1])-new Date(s[i]))/864e5; if(d===1)t++;else{b=Math.max(b,t);t=1;}} b=Math.max(b,t,c); return{current:c,best:b}; };
 
-// --- Компоненти (Без змін) ---
 function MonsterDisplay({ monster, showEvolution, size }) {
   return (
     <div className="flex flex-col items-center gap-1">
@@ -87,9 +84,7 @@ function OnboardingModal({ open, onClose }) {
 }
 
 
-// -------------------- Головний компонент сторінки --------------------
 export default function ProgressPage() {
-  // --- Стани RPG ---
   const [habits, setHabits] = useLocalStorage('habits', []);
   const [points, setPoints] = useLocalStorage('userPoints', 0);
   const [playerXP, setPlayerXP] = useLocalStorage('playerXP', 0);
@@ -105,7 +100,6 @@ export default function ProgressPage() {
   const [tasksSinceLastBoss, setTasksSinceLastBoss] = useLocalStorage('tasksSinceLastBoss', 0);
   const [tempName, setTempName] = useState(characterName);
 
-  // --- Стани "Старка" (АІ) ---
   const [starkQuests, setStarkQuests] = useLocalStorage('starkQuests', []); 
   const [lastStarkCheck, setLastStarkCheck] = useLocalStorage('lastStarkCheck', null); 
   const [coachMessage, setCoachMessage] = useState(null);
@@ -114,7 +108,6 @@ export default function ProgressPage() {
   const [shopAdvice, setShopAdvice] = useState(null);
   const [isShopAdviceLoading, setIsShopAdviceLoading] = useState(false);
   
-  // --- Локальні стани UI (Без змін) ---
   const [selectedItem, setSelectedItem] = useState(null);
   const [showShop, setShowShop] = useState(false);
   const [showBattle, setShowBattle] = useState(false);
@@ -132,7 +125,6 @@ export default function ProgressPage() {
   const today = todayISO();
   const currentMaxBossHp = useMemo(() => 500 + bossDefeatCount * 100, [bossDefeatCount]);
 
-  // --- Обчислювані дані (Без змін) ---
   const habitsWithStreaks = useMemo(() => (Array.isArray(habits) ? habits : []).map(h => ({ ...h, ...calculateStreak(h.completedDays || []), isCompletedToday: (h.completedDays || []).includes(todayISO()) })), [habits]);
   const stats = useMemo(() => ({
     last7Days: Array.from({ length: 7 }, (_, i) => {
@@ -168,7 +160,6 @@ export default function ProgressPage() {
   const canAttack = stamina >= currentAttackCost;
   const baseDamage = 60; 
 
-  // --- useEffect ДЛЯ ІНІЦІАЛІЗАЦІЇ АІ (Без змін) ---
   useEffect(() => {
     const initAI = () => {
       const storedKey = localStorage.getItem('gemini_api_key');
@@ -191,7 +182,6 @@ export default function ProgressPage() {
     initAI();
   }, []);
 
-  // Ефект еволюції (без змін)
   const [prevLevel, setPrevLevel] = useState(currentLevel); 
   useEffect(() => { 
     if (currentLevel > prevLevel) { 
@@ -203,7 +193,6 @@ export default function ProgressPage() {
     } 
   }, [currentLevel, prevLevel, currentMonsterData?.name, setToast, characterName]);
 
-  // Ефект Ситості (Без змін)
   useEffect(() => {
     const i = setInterval(() => {
       setSatiety(s => Math.max(0, s - 2)); 
@@ -211,10 +200,8 @@ export default function ProgressPage() {
     return () => clearInterval(i);
   }, [setSatiety]);
   
-  // Ефект появи боса (Без змін)
   useEffect(() => { if (tasksSinceLastBoss >= 5 && bossHp <= 0) { setBossHp(currentMaxBossHp); setShowBattle(true); setTasksSinceLastBoss(0); setToast({ text: `👹 З\'явився Бос Рівня ${bossDefeatCount + 1}! Час до бою!`, type: 'warning' }); } }, [tasksSinceLastBoss, bossHp, currentMaxBossHp, bossDefeatCount, setBossHp, setShowBattle, setTasksSinceLastBoss, setToast]);
   
-  // Ефект поразки від боса (Без змін)
   useEffect(() => {
     if (stamina <= 0 && showBattle) {
       const xpLost = Math.floor(xpInCurrentLevel / 3);
@@ -226,29 +213,19 @@ export default function ProgressPage() {
     }
   }, [stamina, showBattle, xpInCurrentLevel, currentMonsterData?.threshold, setPlayerXP, setStamina, setToast, setShowBattle]);
 
-  // Ефекти (без змін)
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 3000); return () => clearTimeout(t); }, [toast, setToast]);
   useEffect(() => { setTempName(characterName); }, [characterName]);
   useEffect(() => { const handleResize = () => setWindowWidth(window.innerWidth); window.addEventListener('resize', handleResize); return () => window.removeEventListener('resize', handleResize); }, []);
 
-  // Tригер Старка: Аналіз при першому завантаженні (ЗАЛЕЖИТЬ ВІД genAIModel)
   useEffect(() => {
-    // Спрацює ТІЛЬКИ ТОДІ, коли genAIModel успішно завантажиться
     if (genAIModel) { 
       const timer = setTimeout(() => {
-        // Викликаємо аналіз (який тепер точно знає, що модель є)
         requestStarkAnalysis(); 
-      }, 1500); // (Можна трохи зменшити затримку)
+      }, 1500); 
       return () => clearTimeout(timer);
     }
-  }, [genAIModel]); // 👈 ГОЛОВНА ЗМІНА: цей хук тепер залежить від моделі
+  }, [genAIModel]); 
 
-  
-  // --- ОНОВЛЕНА ЛОГІКА "СТАРКА" (Стабільність + Нагороди) ---
-
-  // --- А. ЛОГІКА ГЕНЕРАЦІЇ КВЕСТІВ (JSON) ---
-
-  // "МОЗОК" (Квести): Створює промпт для Gemini
   const createStarkPrompt = () => {
     const playerState = {
       characterName: characterName,
@@ -275,7 +252,6 @@ export default function ProgressPage() {
     const challengeRewardPoints = Math.floor(baseRewardPoints * 1.5);
     const challengeRewardXP = Math.floor(baseRewardXP * 1.5);
 
-    // === ОНОВЛЕНИЙ ПРОМПТ ===
     return `
       Ти "Старк", АІ-асистент та Гейм-Майстер.
       Твоє завдання - згенерувати "Дошку Доручень" (3 квести) на основі стану гравця.
@@ -339,7 +315,6 @@ export default function ProgressPage() {
     `;
   };
   
-  // "API" (Квести): Викликає Gemini для JSON
   const callStarkGenerator = async () => {
     if (!genAIModel) { 
       setCoachMessage("Помилка: АІ (JSON) модель не завантажена. Перевір ключ API.");
@@ -377,7 +352,6 @@ export default function ProgressPage() {
     }
   };
 
-  // "ТРИГЕР" (Квести): Логіка щоденного оновлення (Без змін)
   const requestStarkAnalysis = () => {
     if (isCoachLoading) return; 
 
@@ -401,7 +375,6 @@ export default function ProgressPage() {
     setCoachMessage(firstVisit ? 'Ласкаво просимо!' : `У тебе ще є ${starkQuests.length} ${starkQuests.length === 1 ? 'активний квест' : 'активних квести'} від мене. Не розслабляйся!`);
   };
 
-  // --- Б. ЛОГІКА ПОРАД (ТЕКСТ) (Без змін) ---
 
   const createStarkShopPrompt = () => {
     return `
@@ -458,7 +431,6 @@ export default function ProgressPage() {
   };
 
 
-  // --- ЛОГІКА ГРИ (Без змін) ---
   
   const handleCompleteHabit = (habitId) => { 
     const habit=habitsWithStreaks.find(h=>h.id===habitId); 
@@ -484,7 +456,6 @@ export default function ProgressPage() {
     
     if(isStarving){setToast({text:`Квест! +${pR} очок${crownBonus>1?'(x2 👑)':''} (штраф 😥). До боса: ${nBC>=0?nBC:'Готовий!'}`,type:'warning'});}else{setToast({text:toastText,type:'success'});}
     
-    // === ЛОГІКА ОНОВЛЕННЯ "ДОШКИ ДОРУЧЕНЬ" СТАРКА ===
     if (starkQuests.length > 0) {
       let completedQuest = null;
       let questProgressMessage = null; 
@@ -540,7 +511,6 @@ export default function ProgressPage() {
       
       setStarkQuests(newQuestList);
     }
-    // === КІНЕЦЬ ЛОГІКИ СТАРКА ===
   };
   
   const attackBoss=(isAuto=false)=>{
@@ -574,7 +544,6 @@ export default function ProgressPage() {
   const handleAddHabit=(newHabit)=>{const h={...newHabit,id:Date.now().toString(),createdAt:today,completedDays:[]}; setHabits(p=>[...p,h]); setPoints(p=>p+30); setPlayerXP(x=>x+50); setShowAddModal(false); setToast({text:'Квест додано! +30 очок, +50 XP',type:'success'});};
   const buyAndFeed=(item)=>{if(points<item.price){setToast({text:'Не вистачає очок!',type:'error'});return;} if(item.stat){setPoints(p=>p-item.price); setEquipmentStats(p=>({...p,[item.stat]:(p[item.stat]||0)+item.value})); setToast({text:`Куплено ${item.name}! ${item.effect}`,type:'success'});return;} if(item.type==='cosmetic'||item.type==='artifact'||item.type==='potion'){if(purchasedCosmetics.includes(item.id)){setToast({text:'Вже придбано',type:'info'});return;} setPurchasedCosmetics(p=>[...p,item.id]); setPoints(p=>p-item.price); setToast({text:`Куплено: ${item.name}!`,type:'success'});return;} setPoints(p=>p-item.price); if(item.stamina)setStamina(s=>Math.min(100,s+item.stamina)); if(item.satiety!==undefined)setSatiety(s=>Math.min(100,s+item.satiety)); if(item.xp)setPlayerXP(x=>x+item.xp); setFeeding(item); setTimeout(()=>setFeeding(null),1800); if(dailyFeedStreak.lastFed!==today){const y=new Date(Date.now()-864e5).toISOString().split('T')[0]; const nC=dailyFeedStreak.lastFed===y?dailyFeedStreak.count+1:1; setToast({text:`Монстр з'їв ${item.name}. ${nC>1?`Стрік годування: ${nC}! 🔥`:'Новий стрік годування!'}`,type:'success'}); setDailyFeedStreak({count:nC,lastFed:today});}else{setToast({text:`Монстр з'їв ${item.name}`,type:'success'});}};
 
-  // --- UI допоміжні (Без змін) ---
   const scrollLeft=()=>scrollRef.current?.scrollBy({left:-300,behavior:'smooth'}); const scrollRight=()=>scrollRef.current?.scrollBy({left:300,behavior:'smooth'});
   const handleNameSubmit=()=>{ const trimmedName = tempName.trim(); if(trimmedName){setCharacterName(trimmedName); setShowNameModal(false); if(firstVisit){setShowOnboarding(true); setFirstVisit(false);}}};
   const finishOnboarding=()=>{setShowOnboarding(false);};
@@ -583,10 +552,10 @@ export default function ProgressPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-white overflow-x-hidden pb-20">
 
-      {/* Фонові частки (Без змін) */}
+      {/* Фонові частки */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10"> {[...Array(6)].map((_, i) => ( <motion.div key={i} className="absolute w-64 h-64 rounded-full blur-3xl opacity-15" style={{ background: `radial-gradient(circle, hsl(${i * 50}, 80%, 60%), transparent 70%)` }} animate={{ x: [0, (i % 2 ? 180 : -120), 0], y: [0, -150 + i * 10, 0], scale: [1, 1.6, 1] }} transition={{ duration: 12 + i * 2, repeat: Infinity, ease: 'easeInOut' }} /> ))} </div>
 
-      {/* Адаптивний Хедер (Без змін) */}
+      {/* Адаптивний Хедер */}
       <header className="relative z-10 pt-12 pb-6 px-4">
         <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="max-w-6xl w-full p-4 sm:p-6 rounded-3xl backdrop-blur-2xl bg-white/60 dark:bg-gray-800/60 border border-white/30 shadow-xl relative">
           <button onClick={() => setShowOnboarding(true)} className="absolute top-3 right-3 z-20 p-1.5 rounded-full bg-white/50 dark:bg-gray-700/50 hover:bg-white/70 transition" aria-label="Показати інструкцію"> <HelpCircle className="w-5 h-5 text-orange-500" /> </button>
@@ -615,7 +584,7 @@ export default function ProgressPage() {
                   </div>
               </div>
 
-              {/* === БЛОК СТАТИСТИКИ (з виправленням .map()) === */}
+              {/* === БЛОК СТАТИСТИКИ === */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
                   { label: 'Сьогодні', value: habitsWithStreaks.filter(h => h.isCompletedToday).length, icon: Calendar, styles: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/30' },
@@ -623,8 +592,8 @@ export default function ProgressPage() {
                   { label: 'Очки', value: points, icon: Star, styles: 'text-yellow-600 bg-yellow-500/10 border-yellow-500/30' },
                   {
                     label: 'Магазин',
-                    value: <ShoppingBag className="w-4 h-4" />, // Це значення буде використано як іконка
-                    icon: ShoppingBag, // Додаємо для узгодженості
+                    value: <ShoppingBag className="w-4 h-4" />, 
+                    icon: ShoppingBag,
                     onClick: () => {
                       setShowShop(true);
                       setShopTab('food');
@@ -639,10 +608,8 @@ export default function ProgressPage() {
                     onClick={item.onClick}
                     className={`flex flex-col items-center justify-center text-center p-2.5 rounded-xl border ${item.styles} ${item.onClick ? 'cursor-pointer transition hover:bg-white/70 dark:hover:bg-gray-700/70' : ''}`}
                   >
-                    {/* Рендеримо іконку з `value` якщо це 'Магазин', інакше з `item.icon` */}
                     {item.label === 'Магазин' ? item.value : <item.icon className="w-5 h-5 mb-1" />}
                     
-                    {/* Не показуємо числове значення для 'Магазин' */}
                     {item.label !== 'Магазин' && (
                       <span className="text-xl font-bold">{item.value}</span>
                     )}
@@ -655,7 +622,7 @@ export default function ProgressPage() {
             </div>
           </div>
         
-        {/* БЛОК СТАТУСУ (Витривалість + Ситість) (Без змін) */}
+        {/* БЛОК СТАТУСУ (Витривалість + Ситість) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4 p-2.5 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-white/20">
             <div className="space-y-1.5"> 
                 <div className="flex items-center gap-2"> 
@@ -730,7 +697,7 @@ export default function ProgressPage() {
                     <h4 className="text-lg font-bold">{quest.title}</h4>
                     <p className="text-sm text-indigo-100 mb-2 italic">{quest.description}</p>
                     
-                    {/* === 🎯 ОНОВЛЕНИЙ БЛОК ЦІЛІ === */}
+                    {/* ===  БЛОК ЦІЛІ === */}
                     <div className="mb-3 p-3 rounded-lg bg-black/30">
                       <p className="text-sm font-bold text-yellow-300">🎯 Ціль: {quest.objective || 'Виконуйте квести!'}</p>
                     </div>
@@ -755,7 +722,7 @@ export default function ProgressPage() {
       {/* === КІНЕЦЬ БЛОКУ === */}
 
 
-      {/* Квести (carousel) (Без змін) */}
+      {/* Квести (carousel) */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 mt-8 mb-10">
          <div className="flex items-center justify-between mb-4"> 
           <h2 className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Квести (Натисни)</h2> 
@@ -768,7 +735,7 @@ export default function ProgressPage() {
                    <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-3"> <div className="bg-gradient-to-r from-rose-500 to-orange-500 h-full rounded-full transition-all" style={{ width: `${Math.min(h.currentStreak * 4, 100)}%` }} /> </div> </div> </div> </motion.div> ); }) )} </div>
       </section>
 
-      {/* Прогрес + Босс (Без змін) */}
+      {/* Прогрес + Босс  */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 mb-20 grid lg:grid-cols-2 gap-12">
         <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-8 rounded-3xl backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-white/30 shadow-2xl"> 
           <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Прогрес (виконані квести)</h3> 
@@ -787,7 +754,7 @@ export default function ProgressPage() {
          </motion.div>
       </section>
 
-      {/* --- МОДАЛЬНІ ВІКНА (Без змін) --- */}
+      {/* --- МОДАЛЬНІ ВІКНА  --- */}
       <AnimatePresence> {showShop && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-6" onClick={() => setShowShop(false)}> <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="max-w-4xl w-full max-h-[80vh] overflow-y-auto p-6 md:p-8 rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/20 shadow-2xl" onClick={e => e.stopPropagation()}> 
             <div className="flex justify-between items-center mb-6"> <h3 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">Магічний ринок</h3> <button onClick={() => setShowShop(false)} className="p-2 rounded-xl hover:bg-black/10 dark:hover:bg-white/20"><X className="w-6 h-6" /></button> </div> 
 

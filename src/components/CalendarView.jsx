@@ -13,7 +13,6 @@ const CalendarView = ({ habit }) => {
 
   const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 
-  // Отримуємо дні місяця
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -21,19 +20,15 @@ const CalendarView = ({ habit }) => {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     
-    // Отримуємо день тижня першого дня (0 = неділя, 1 = понеділок, ...)
     let firstDayOfWeek = firstDay.getDay();
-    // Конвертуємо в наш формат (0 = понеділок)
     firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
     const days = [];
     
-    // Додаємо порожні клітинки для днів попереднього місяця
     for (let i = 0; i < firstDayOfWeek; i++) {
       days.push(null);
     }
-    
-    // Додаємо дні поточного місяця
+  
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
@@ -57,7 +52,6 @@ const CalendarView = ({ habit }) => {
 
   const isCompleted = (date) => {
     if (!date) return false;
-    // Нормалізуємо дату до локального часу
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');

@@ -10,7 +10,6 @@ const AIRecommendations = ({ habits }) => {
   const { isInitialized, loading, recommendHabits } = useAI();
 
   useEffect(() => {
-    // Автоматично завантажуємо рекомендації при першому відкритті
     if (isInitialized && habits.length > 0 && !recommendations) {
       loadRecommendations();
     }

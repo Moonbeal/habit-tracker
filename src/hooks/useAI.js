@@ -8,7 +8,6 @@ export const useAI = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Завантаження API ключа з localStorage
   useEffect(() => {
     const savedKey = localStorage.getItem('gemini_api_key');
     if (savedKey) {
@@ -23,7 +22,6 @@ export const useAI = () => {
     }
   }, []);
 
-  // Збереження API ключа
   const saveApiKey = (key) => {
     try {
       aiService.initialize(key);
@@ -38,14 +36,12 @@ export const useAI = () => {
     }
   };
 
-  // Видалення API ключа
   const removeApiKey = () => {
     localStorage.removeItem('gemini_api_key');
     setApiKey('');
     setIsInitialized(false);
   };
 
-  // Обгортка для AI запитів з обробкою помилок
   const makeRequest = async (requestFn) => {
     if (!isInitialized) {
       setError('AI не ініціалізовано. Додайте API ключ.');
@@ -67,7 +63,6 @@ export const useAI = () => {
     }
   };
 
-  // Методи для роботи з AI
   const analyzeHabits = (habits) => 
     makeRequest(() => aiService.analyzeHabits(habits));
 

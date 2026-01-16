@@ -14,7 +14,6 @@ const PersonalGreeting = ({ habits }) => {
   const hour = currentTime.getHours();
   const today = new Date().toISOString().split('T')[0];
   
-  // Визначаємо час доби
   const getTimeOfDay = () => {
     if (hour >= 5 && hour < 12) return 'morning';
     if (hour >= 12 && hour < 17) return 'afternoon';
@@ -24,7 +23,6 @@ const PersonalGreeting = ({ habits }) => {
 
   const timeOfDay = getTimeOfDay();
 
-  // Привітання залежно від часу
   const greetings = {
     morning: {
       text: 'Доброго ранку',
@@ -59,7 +57,6 @@ const PersonalGreeting = ({ habits }) => {
   const greeting = greetings[timeOfDay];
   const Icon = greeting.icon;
 
-  // Статистика
   const totalHabits = habits.length;
   const completedToday = habits.filter(h => 
     h.completedDays?.includes(today)
@@ -67,7 +64,6 @@ const PersonalGreeting = ({ habits }) => {
   const currentStreaks = habits.reduce((sum, h) => sum + (h.currentStreak || 0), 0);
   const bestStreak = Math.max(...habits.map(h => h.bestStreak || 0), 0);
 
-  // Мотиваційні повідомлення
   const getMotivationalMessage = () => {
     if (totalHabits === 0) {
       return 'Почни свій шлях до кращого себе! 🚀';
