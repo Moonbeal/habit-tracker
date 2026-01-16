@@ -200,20 +200,23 @@
 
   /* Текст */
   .habit-card-text {
-    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    font-size: clamp(0.7rem, 2vw, 0.875rem);
+    line-height: 1.4;
   }
 
   .habit-card-title {
-    font-size: clamp(1rem, 3vw, 1.125rem);
+    font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+    line-height: 1.3;
   }
 
   .habit-card-emoji {
-    font-size: clamp(1.25rem, 4vw, 1.5rem);
+    font-size: clamp(1rem, 3vw, 1.5rem);
   }
 
   /* 7-денний прогрес */
   .habit-card-7days > div {
-    height: clamp(28px, 8vw, 32px);
+    height: clamp(24px, 6vw, 32px);
+    min-height: 24px;
   }
 
   /* Прогрес-бар */
@@ -239,5 +242,26 @@
   /* Забезпечуємо видимість тіней і анімацій */
   .glass-card {
     overflow: visible !important;
+  }
+
+  /* Додаткові адаптивні утиліти */
+  @media (max-width: 640px) {
+    .glass-card {
+      min-height: 240px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .glass-card {
+      min-height: 260px;
+    }
+  }
+
+  /* Покращена адаптивність для модальних вікон */
+  @media (max-width: 640px) {
+    .modal-content {
+      padding: 1rem;
+      margin: 0.5rem;
+    }
   }
 }

@@ -155,22 +155,23 @@ export default function MainPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-              <h1 className="text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r from-orange-600 via-rose-600 to-red-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-orange-600 via-rose-600 to-red-600 bg-clip-text text-transparent leading-tight">
                 Звички, що змінюють життя
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
                 Кожен день — це нова можливість. Ми допомагаємо тобі її не пропустити.
               </p>
 
-              <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <motion.button
                   whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                   onClick={() => setShowQuickAdd(true)}
-                  className="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl"
+                  className="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl text-sm sm:text-base"
                 >
-                  <span className="relative z-10 flex items-center gap-3">
-                    <Plus className="group-hover:rotate-90 transition-transform" />
-                    Створити звичку
+                  <span className="relative z-10 flex items-center gap-2 sm:gap-3">
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-90 transition-transform" />
+                    <span className="hidden sm:inline">Створити звичку</span>
+                    <span className="sm:hidden">Створити</span>
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-rose-600 translate-y-full group-hover:translate-y-0 transition-transform" />
                 </motion.button>
@@ -178,23 +179,24 @@ export default function MainPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   onClick={() => navigate('/habits')}
-                  className="px-8 py-4 rounded-2xl font-semibold backdrop-blur-xl bg-white/50 dark:bg-white/10 border border-white/20"
+                  className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold backdrop-blur-xl bg-white/50 dark:bg-white/10 border border-white/20 text-sm sm:text-base"
                 >
-                  Переглянути всі
+                  <span className="hidden sm:inline">Переглянути всі</span>
+                  <span className="sm:hidden">Всі</span>
                 </motion.button>
               </div>
 
-              <div className="flex gap-8 text-sm">
+              <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 text-xs sm:text-sm">
                 {[
-                  { icon: <Trophy className="text-amber-500" />, text: 'Досягнення' },
-                  { icon: <TrendingUp className="text-emerald-500" />, text: 'Прогрес' },
-                  { icon: <Zap className="text-violet-500" />, text: 'Мотивація' },
+                  { icon: <Trophy className="text-amber-500 w-4 h-4 sm:w-5 sm:h-5" />, text: 'Досягнення' },
+                  { icon: <TrendingUp className="text-emerald-500 w-4 h-4 sm:w-5 sm:h-5" />, text: 'Прогрес' },
+                  { icon: <Zap className="text-violet-500 w-4 h-4 sm:w-5 sm:h-5" />, text: 'Мотивація' },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 + i * 0.1 }}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1.5 sm:gap-2"
                   >
                     {item.icon}
                     <span className="text-gray-600 dark:text-gray-400">{item.text}</span>
@@ -204,23 +206,23 @@ export default function MainPage() {
             </motion.div>
 
             <motion.div id="hero-card" style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} className="relative perspective-1000">
-              <div className="relative p-8 rounded-3xl backdrop-blur-2xl bg-gradient-to-br from-white/80 via-white/60 to-white/40 dark:from-gray-800/80 dark:via-gray-900/60 dark:to-gray-800/40 border border-white/50 shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-rose-400/20 rounded-3xl" />
+              <div className="relative p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl backdrop-blur-2xl bg-gradient-to-br from-white/80 via-white/60 to-white/40 dark:from-gray-800/80 dark:via-gray-900/60 dark:to-gray-800/40 border border-white/50 shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-rose-400/20 rounded-2xl sm:rounded-3xl" />
                 <div className="relative z-10">
-                  <div className="flex justify-between items-start mb-6">
+                  <div className="flex justify-between items-start mb-4 sm:mb-6">
                     <div>
-                      <h3 className="text-2xl font-bold mb-1">Твій прогрес</h3>
-                      <p className="text-gray-600 dark:text-gray-400">Сьогодні</p>
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">Твій прогрес</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Сьогодні</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
+                      <div className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
                         {stats.completedToday}/{stats.total}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">виконано</p>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">виконано</p>
                     </div>
                   </div>
 
-                  <div className="h-40 mb-6">
+                  <div className="h-32 sm:h-36 md:h-40 mb-4 sm:mb-6">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} dataKey="value" stroke="none">
@@ -232,15 +234,15 @@ export default function MainPage() {
                     </ResponsiveContainer>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
-                      <Flame className="w-5 h-5 mx-auto mb-1 text-orange-500" />
-                      <div className="text-lg font-bold">{Math.round(stats.avgStreak)}</div>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                    <div className="text-center p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
+                      <Flame className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-orange-500" />
+                      <div className="text-base sm:text-lg font-bold">{Math.round(stats.avgStreak)}</div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">середній стрік</div>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
-                      <Trophy className="w-5 h-5 mx-auto mb-1 text-amber-500" />
-                      <div className="text-lg font-bold">{stats.bestStreak}</div>
+                    <div className="text-center p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
+                      <Trophy className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-amber-500" />
+                      <div className="text-base sm:text-lg font-bold">{stats.bestStreak}</div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">найкращий</div>
                     </div>
                   </div>
@@ -255,11 +257,11 @@ export default function MainPage() {
       {habits.length > 0 && (
         <section className="py-1 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="relative mb-8 text-center">
-              <h2 className="inline-block text-5xl md:text-6xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
+            <div className="relative mb-6 sm:mb-8 text-center">
+              <h2 className="inline-block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
                 Сьогоднішні звички
               </h2>
-              <div className="mx-auto w-36 h-1 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full mt-2" />
+              <div className="mx-auto w-24 sm:w-32 md:w-36 h-0.5 sm:h-1 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full mt-2" />
             </div>
 
             <div className="relative">
@@ -303,7 +305,7 @@ export default function MainPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: (idx % habits.length) * 0.05 }}
                       whileHover={{ y: -8, scale: 1.03 }}
-                      className={`flex-shrink-0 w-80 snap-center relative overflow-hidden rounded-3xl p-6 backdrop-blur-xl ${cfg.bg} border border-white/30 shadow-xl`}
+                      className={`flex-shrink-0 w-72 sm:w-80 snap-center relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-xl ${cfg.bg} border border-white/30 shadow-xl`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-3xl" />
                       <div className="relative z-10">
@@ -323,11 +325,11 @@ export default function MainPage() {
                           </button>
                         </div>
 
-                        <h3 className="text-xl font-bold mb-2">{realHabit.name}</h3>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Flame className="w-4 h-4 text-orange-500" />
+                        <h3 className="text-lg sm:text-xl font-bold mb-2">{realHabit.name}</h3>
+                        <div className="flex items-center gap-2 text-xs sm:text-sm">
+                          <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
                           <span className="font-semibold">{streak} днів</span>
-                          {streak > 6 && <Star className="w-4 h-4 text-amber-500 ml-1" />}
+                          {streak > 6 && <Star className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500 ml-1" />}
                         </div>
                       </div>
                     </motion.div>
@@ -351,11 +353,11 @@ export default function MainPage() {
             </motion.div>
 
 
-            <div className="relative mb-4 text-right">
-              <h2 className="inline-block text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <div className="relative mb-4 sm:mb-6 text-right">
+              <h2 className="inline-block text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 Прогрес за тиждень
               </h2>
-              <div className="w-32 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mt-1 ml-auto" />
+              <div className="w-24 sm:w-28 md:w-32 h-0.5 sm:h-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mt-1 ml-auto" />
             </div>
 
             {/* Прогрес */}
@@ -365,7 +367,7 @@ export default function MainPage() {
               className="relative p-6 rounded-3xl backdrop-blur-xl bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 dark:from-emerald-950/50 dark:via-teal-950/50 dark:to-cyan-950/50 border border-white/40 shadow-xl overflow-hidden"
               style={{ boxShadow: '0 12px 32px rgba(52, 211, 153, 0.15)' }}
             >
-              <div className="h-64">
+              <div className="h-48 sm:h-56 md:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={last7Days} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
                     <defs>
@@ -417,17 +419,17 @@ export default function MainPage() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="flex justify-around mt-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div className="flex justify-around mt-3 sm:mt-4 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-600">{stats.completedToday}</div>
+                  <div className="text-xl sm:text-2xl font-bold text-emerald-600">{stats.completedToday}</div>
                   <div>сьогодні</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-teal-600">{Math.round(stats.avgStreak)}</div>
+                  <div className="text-xl sm:text-2xl font-bold text-teal-600">{Math.round(stats.avgStreak)}</div>
                   <div>середній стрік</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-cyan-600">{stats.bestStreak}</div>
+                  <div className="text-xl sm:text-2xl font-bold text-cyan-600">{stats.bestStreak}</div>
                   <div>рекорд</div>
                 </div>
               </div>

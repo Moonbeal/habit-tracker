@@ -226,10 +226,10 @@ const AddHabitForm = ({ onAdd, onCancel }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-3"
-section           >
-            <div className="flex justify-between items-center">
-              <h3 className="text-md font-semibold text-gray-800 dark:text-gray-100">Генерація ідей звичок</h3>
+            className="space-y-3"
+          >
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm sm:text-md font-semibold text-gray-800 dark:text-gray-100">Генерація ідей звичок</h3>
       	       <button onClick={() => { setMode("choose"); setShowManualAfterAI(false); setAiSuggestions([]); }} className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1">
       	         <ArrowLeft className="w-3 h-3" /> Назад
               </button>
@@ -243,9 +243,9 @@ section           >
                 placeholder="Опиши, яку звичку хочеш створити..."
   	             className="flex-grow p-2.5 rounded-xl border border-white/30 focus:ring-2 focus:ring-fuchsia-400 outline-none bg-white/70 backdrop-blur-sm text-sm placeholder:text-gray-500 text-gray-900"
               />
-              <button
-                onClick={generateAIHabits}
-section             	   disabled={aiLoading} 
+              <button
+                onClick={generateAIHabits}
+                disabled={aiLoading} 
                 className="bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white px-4 py-2 rounded-xl shadow-sm hover:shadow-pink-400/40 hover:scale-[1.03] transition-all text-sm disabled:opacity-50"
               >
                 {aiLoading ? <Loader2 className="animate-spin w-4 h-4" /> : "✨"}

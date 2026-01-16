@@ -56,19 +56,19 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
       />
 
       <div className='relative flex-1 flex flex-col justify-between'>
-          <div className='flex items-start justify-between mb-3'>
-            <div className='flex-1 pr-2'>
-              <div className='flex items-center gap-2 mb-1'>
-                <span className='habit-card-emoji'>{categoryEmojis[habit.category]}</span>
-                <h3 className='font-bold text-purple-900 dark:text-purple-100 habit-card-title'>{habit.name}</h3>
-              </div>
-              <p className='text-purple-600 dark:text-purple-400 mb-1 habit-card-text'>{categoryNames[habit.category]}</p>
-              {habit.description && (
-                <p className='text-gray-600 dark:text-gray-400 habit-card-text'>{habit.description}</p>
-              )}
-            </div>
-            
-            <div className='flex flex-col sm:flex-row gap-2'>
+          <div className='flex items-start justify-between mb-2 sm:mb-3'>
+            <div className='flex-1 pr-2'>
+              <div className='flex items-center gap-1.5 sm:gap-2 mb-1'>
+                <span className='habit-card-emoji text-lg sm:text-xl md:text-2xl'>{categoryEmojis[habit.category]}</span>
+                <h3 className='font-bold text-purple-900 dark:text-purple-100 habit-card-title text-sm sm:text-base md:text-lg'>{habit.name}</h3>
+              </div>
+              <p className='text-purple-600 dark:text-purple-400 mb-1 habit-card-text text-xs sm:text-sm'>{categoryNames[habit.category]}</p>
+              {habit.description && (
+                <p className='text-gray-600 dark:text-gray-400 habit-card-text text-xs sm:text-sm line-clamp-2'>{habit.description}</p>
+              )}
+            </div>
+            
+            <div className='flex flex-col gap-1.5 sm:gap-2 flex-shrink-0'>
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -113,26 +113,26 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
             </div>
           </div>
 
-          {/* Статистика */}
-          <div className='grid grid-cols-3 gap-3 mb-3'>
-            <div className='glass rounded-xl p-3 text-center hover:scale-105 transition-transform cursor-pointer'>
-              <div className='flex items-center justify-center gap-1 mb-1'>
-                <Flame size={16} className='text-orange-500' />
-                <span className='text-xs text-purple-600 dark:text-purple-400'>Серія</span>
-              </div>
-              <p className='text-lg font-bold text-purple-900 dark:text-purple-100'>{habit.currentStreak}</p>
-            </div>
-            
-            <div className='glass rounded-xl p-3 text-center hover:scale-105 transition-transform cursor-pointer'>
-              <p className='text-xs text-purple-600 dark:text-purple-400 mb-1'>Найкраща</p>
-              <p className='text-lg font-bold text-purple-900 dark:text-purple-100'>{habit.bestStreak}</p>
-            </div>
-            
-            <div className='glass rounded-xl p-3 text-center hover:scale-105 transition-transform cursor-pointer'>
-              <p className='text-xs text-purple-600 dark:text-purple-400 mb-1'>Всього</p>
-    	         <p className='text-lg font-bold text-purple-900 dark:text-purple-100'>{habit.completedDays.length}</p>
-            </div>
-          </div>
+          {/* Статистика */}
+          <div className='grid grid-cols-3 gap-2 sm:gap-3 mb-2 sm:mb-3'>
+            <div className='glass rounded-lg sm:rounded-xl p-2 sm:p-3 text-center hover:scale-105 transition-transform cursor-pointer'>
+              <div className='flex items-center justify-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1'>
+                <Flame size={14} className='sm:w-4 sm:h-4 text-orange-500' />
+                <span className='text-xs text-purple-600 dark:text-purple-400'>Серія</span>
+              </div>
+              <p className='text-base sm:text-lg font-bold text-purple-900 dark:text-purple-100'>{habit.currentStreak}</p>
+            </div>
+            
+            <div className='glass rounded-lg sm:rounded-xl p-2 sm:p-3 text-center hover:scale-105 transition-transform cursor-pointer'>
+              <p className='text-xs text-purple-600 dark:text-purple-400 mb-0.5 sm:mb-1'>Найкраща</p>
+              <p className='text-base sm:text-lg font-bold text-purple-900 dark:text-purple-100'>{habit.bestStreak}</p>
+            </div>
+            
+            <div className='glass rounded-lg sm:rounded-xl p-2 sm:p-3 text-center hover:scale-105 transition-transform cursor-pointer'>
+              <p className='text-xs text-purple-600 dark:text-purple-400 mb-0.5 sm:mb-1'>Всього</p>
+              <p className='text-base sm:text-lg font-bold text-purple-900 dark:text-purple-100'>{habit.completedDays.length}</p>
+            </div>
+          </div>
 
           {/* Останні 7 днів */}
           <div className='flex gap-1 mb-3 habit-card-7days'>
@@ -173,10 +173,11 @@ const HabitCard = ({ habit, onToggleComplete, onDelete, onEdit, onClick }) => {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className='w-full flex items-center justify-center gap-2 glass glass-hover text-purple-700 dark:text-purple-300 py-2.5 rounded-xl font-medium transition-all hover:shadow-md'
+        className='w-full flex items-center justify-center gap-1.5 sm:gap-2 glass glass-hover text-purple-700 dark:text-purple-300 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium transition-all hover:shadow-md text-xs sm:text-sm'
       >
-        <Calendar size={16} />
-        <span className='text-sm font-medium'>Переглянути календар</span>
+        <Calendar size={14} className="sm:w-4 sm:h-4" />
+        <span className='font-medium hidden sm:inline'>Переглянути календар</span>
+        <span className='font-medium sm:hidden'>Календар</span>
       </motion.button>
     </motion.div>
   );

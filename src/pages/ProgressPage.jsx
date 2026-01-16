@@ -147,7 +147,14 @@ export default function ProgressPage() {
     emoji: currentMonsterData.emoji
   }), [currentMonsterData, currentLevel]);
 
-  const monsterDisplaySize = useMemo(() => { const baseSize = currentMonsterData?.size || 120; if (windowWidth < 768) return baseSize * 0.9; return baseSize * 1.1; }, [currentMonsterData?.size, windowWidth]);
+  const monsterDisplaySize = useMemo(() => { 
+    const baseSize = currentMonsterData?.size || 120; 
+    if (windowWidth < 640) return Math.max(80, baseSize * 0.7); 
+    if (windowWidth < 768) return baseSize * 0.85; 
+    if (windowWidth < 1024) return baseSize * 1.0; 
+    if (windowWidth < 1280) return baseSize * 1.1; 
+    return baseSize * 1.2; 
+  }, [currentMonsterData?.size, windowWidth]);
   
   const currentAttackBonus = equipmentStats?.attack || 0;
   const currentStaminaReduction = equipmentStats?.efficiency || 0;
@@ -555,17 +562,17 @@ export default function ProgressPage() {
       {/* Фонові частки */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10"> {[...Array(6)].map((_, i) => ( <motion.div key={i} className="absolute w-64 h-64 rounded-full blur-3xl opacity-15" style={{ background: `radial-gradient(circle, hsl(${i * 50}, 80%, 60%), transparent 70%)` }} animate={{ x: [0, (i % 2 ? 180 : -120), 0], y: [0, -150 + i * 10, 0], scale: [1, 1.6, 1] }} transition={{ duration: 12 + i * 2, repeat: Infinity, ease: 'easeInOut' }} /> ))} </div>
 
-      {/* Адаптивний Хедер */}
-      <header className="relative z-10 pt-12 pb-6 px-4">
-        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="max-w-6xl w-full p-4 sm:p-6 rounded-3xl backdrop-blur-2xl bg-white/60 dark:bg-gray-800/60 border border-white/30 shadow-xl relative">
+      {/* Адаптивний Хедер */}
+      <header className="relative z-10 pt-12 pb-6 px-3 sm:px-4 md:px-6">
+        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="w-full max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-[90rem] mx-auto p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl backdrop-blur-2xl bg-white/60 dark:bg-gray-800/60 border border-white/30 shadow-xl relative">
           <button onClick={() => setShowOnboarding(true)} className="absolute top-3 right-3 z-20 p-1.5 rounded-full bg-white/50 dark:bg-gray-700/50 hover:bg-white/70 transition" aria-label="Показати інструкцію"> <HelpCircle className="w-5 h-5 text-orange-500" /> </button>
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
-            <div className="md:w-1/3 flex-shrink-0 w-full flex justify-center"> <MonsterDisplay monster={currentMonster} size={monsterDisplaySize} showEvolution={showEvolution} /> </div>
-            <div className="md:w-2/3 flex-grow w-full flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-4 items-start">
-                  <div className="col-span-1 space-y-2 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-2">
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold truncate tracking-tight">{characterName} {isCrownOwned && '👑'}</h3>
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-3 sm:gap-4 md:gap-6">
+            <div className="md:w-1/3 flex-shrink-0 w-full flex justify-center"> <MonsterDisplay monster={currentMonster} size={monsterDisplaySize} showEvolution={showEvolution} /> </div>
+            <div className="md:w-2/3 flex-grow w-full flex flex-col gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 items-start">
+                <div className="col-span-1 space-y-2 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold truncate tracking-tight">{characterName} {isCrownOwned && '👑'}</h3>
                       <button onClick={openEditNameModal} className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition"> <Edit className="w-4 h-4 text-gray-500 dark:text-gray-400" /> </button>
                     </div>
                     <div className="flex items-center gap-4 justify-center sm:justify-start -mt-1">
@@ -584,66 +591,66 @@ export default function ProgressPage() {
                   </div>
               </div>
 
-              {/* === БЛОК СТАТИСТИКИ === */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {[
-                  { label: 'Сьогодні', value: habitsWithStreaks.filter(h => h.isCompletedToday).length, icon: Calendar, styles: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/30' },
-                  { label: 'Стрік', value: Math.max(...(habitsWithStreaks.map(h => h.currentStreak).filter(Boolean)), 0), icon: Flame, styles: 'text-rose-600 bg-rose-500/10 border-rose-500/30' },
-                  { label: 'Очки', value: points, icon: Star, styles: 'text-yellow-600 bg-yellow-500/10 border-yellow-500/30' },
-                  {
-                    label: 'Магазин',
-                    value: <ShoppingBag className="w-4 h-4" />, 
-                    icon: ShoppingBag,
-                    onClick: () => {
-                      setShowShop(true);
-                      setShopTab('food');
-                      setShopAdvice(null);
-                      getStarkShopAdvice();
-                    },
-                    styles: 'text-indigo-600 bg-indigo-500/10 border-indigo-500/30'
-                  }
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    onClick={item.onClick}
-                    className={`flex flex-col items-center justify-center text-center p-2.5 rounded-xl border ${item.styles} ${item.onClick ? 'cursor-pointer transition hover:bg-white/70 dark:hover:bg-gray-700/70' : ''}`}
-                  >
-                    {item.label === 'Магазин' ? item.value : <item.icon className="w-5 h-5 mb-1" />}
-                    
-                    {item.label !== 'Магазин' && (
-                      <span className="text-xl font-bold">{item.value}</span>
-                    )}
+              {/* === БЛОК СТАТИСТИКИ === */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                {[
+                  { label: 'Сьогодні', value: habitsWithStreaks.filter(h => h.isCompletedToday).length, icon: Calendar, styles: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/30' },
+                  { label: 'Стрік', value: Math.max(...(habitsWithStreaks.map(h => h.currentStreak).filter(Boolean)), 0), icon: Flame, styles: 'text-rose-600 bg-rose-500/10 border-rose-500/30' },
+                  { label: 'Очки', value: points, icon: Star, styles: 'text-yellow-600 bg-yellow-500/10 border-yellow-500/30' },
+                  {
+                    label: 'Магазин',
+                    value: <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />, 
+                    icon: ShoppingBag,
+                    onClick: () => {
+                      setShowShop(true);
+                      setShopTab('food');
+                      setShopAdvice(null);
+                      getStarkShopAdvice();
+                    },
+                    styles: 'text-indigo-600 bg-indigo-500/10 border-indigo-500/30'
+                  }
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    onClick={item.onClick}
+                    className={`flex flex-col items-center justify-center text-center p-2 sm:p-2.5 rounded-lg sm:rounded-xl border ${item.styles} ${item.onClick ? 'cursor-pointer transition hover:bg-white/70 dark:hover:bg-gray-700/70' : ''}`}
+                  >
+                    {item.label === 'Магазин' ? item.value : <item.icon className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />}
+                    
+                    {item.label !== 'Магазин' && (
+                      <span className="text-lg sm:text-xl font-bold">{item.value}</span>
+                    )}
 
-                    <p className="text-xs font-medium mt-1">{item.label}</p>
-                  </div>
-                ))}
-              </div>
+                    <p className="text-xs font-medium mt-0.5 sm:mt-1">{item.label}</p>
+                  </div>
+                ))}
+              </div>
             
             </div>
           </div>
         
-        {/* БЛОК СТАТУСУ (Витривалість + Ситість) */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4 p-2.5 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-white/20">
-            <div className="space-y-1.5"> 
-                <div className="flex items-center gap-2"> 
-                  <Zap className="w-4 h-4 text-indigo-400 flex-shrink-0" /> 
-                  <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 overflow-hidden"> 
-                    <div style={{ width: `${stamina}%` }} className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all" /> 
-                  </div> 
-                  <span className="text-xs font-semibold w-12 text-right">{stamina}%</span> 
-                </div> 
-                <div className="flex items-center gap-2"> 
-                  <Cookie className="w-4 h-4 text-yellow-700 flex-shrink-0" /> 
-                  <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 overflow-hidden"> 
-                    <div style={{ width: `${satiety}%` }} className="h-full bg-gradient-to-r from-yellow-600 to-orange-500 transition-all" /> 
-                  </div> 
-                  <span className="text-xs font-semibold w-12 text-right">{satiety}%</span> 
-                </div> 
-              </div> 
-              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1.5 italic"> 
-                {satiety < 20 ? 'Голодує! (штраф)' : stamina < 20 ? 'Втомлений' : satiety < 50 ? 'Хоче їсти' : 'Ситий!'}
-              </p>
-          </motion.div>
+        {/* БЛОК СТАТУСУ (Витривалість + Ситість) */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-3 sm:mt-4 p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-white/50 dark:bg-gray-700/50 border border-white/20">
+          <div className="space-y-1 sm:space-y-1.5"> 
+            <div className="flex items-center gap-1.5 sm:gap-2"> 
+              <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-400 flex-shrink-0" /> 
+              <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-1.5 sm:h-2 overflow-hidden"> 
+                <div style={{ width: `${stamina}%` }} className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all" /> 
+              </div> 
+              <span className="text-xs font-semibold w-10 sm:w-12 text-right">{stamina}%</span> 
+            </div> 
+            <div className="flex items-center gap-1.5 sm:gap-2"> 
+              <Cookie className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-700 flex-shrink-0" /> 
+              <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-1.5 sm:h-2 overflow-hidden"> 
+                <div style={{ width: `${satiety}%` }} className="h-full bg-gradient-to-r from-yellow-600 to-orange-500 transition-all" /> 
+              </div> 
+              <span className="text-xs font-semibold w-10 sm:w-12 text-right">{satiety}%</span> 
+            </div> 
+          </div> 
+          <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1 sm:mt-1.5 italic"> 
+            {satiety < 20 ? 'Голодує! (штраф)' : stamina < 20 ? 'Втомлений' : satiety < 50 ? 'Хоче їсти' : 'Ситий!'}
+          </p>
+        </motion.div>
         </motion.div>
       </header>
 
@@ -678,13 +685,14 @@ export default function ProgressPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-2xl border-4 border-yellow-300">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-yellow-300" />
-                  Дошка Доручень Старка
-                </h3>
-              </div>
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-2xl border-2 sm:border-4 border-yellow-300">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300" />
+                  <span className="hidden sm:inline">Дошка Доручень Старка</span>
+                  <span className="sm:hidden">Дошка Старка</span>
+                </h3>
+              </div>
               
               <div className="space-y-4">
                 {starkQuests.map((quest) => (
@@ -724,8 +732,8 @@ export default function ProgressPage() {
 
       {/* Квести (carousel) */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 mt-8 mb-10">
-         <div className="flex items-center justify-between mb-4"> 
-          <h2 className="text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Квести (Натисни)</h2> 
+         <div className="flex items-center justify-between mb-3 sm:mb-4"> 
+          <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Квести (Натисни)</h2> 
           <div className="flex gap-2"> <button onClick={scrollLeft} className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 transition"><ChevronLeft className="w-5 h-5" /></button> <button onClick={scrollRight} className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 transition"><ChevronRight className="w-5 h-5" /></button> </div> </div>
          <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"> {habitsWithStreaks.length === 0 ? ( <div className="flex items-center justify-center w-full py-16"> <div className="p-8 rounded-3xl bg-white/50 dark:bg-gray-800/50 border-2 border-dashed border-orange-400/50 text-center"> <Sparkles className="w-10 h-10 mx-auto text-orange-400 mb-3" /> 
                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">Твій монстр чекає на квест!</p> 
@@ -737,14 +745,14 @@ export default function ProgressPage() {
 
       {/* Прогрес + Босс  */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 mb-20 grid lg:grid-cols-2 gap-12">
-        <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-8 rounded-3xl backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-white/30 shadow-2xl"> 
-          <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Прогрес (виконані квести)</h3> 
-          <ResponsiveContainer width="100%" height={200}> <AreaChart data={stats.last7Days}> <CartesianGrid strokeDasharray="3 3" stroke="rgba(120,120,120,0.2)" /> <XAxis dataKey="date" stroke="#888" /> <YAxis stroke="#888" allowDecimals={false} /> <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', borderRadius: '12px', border: 'none' }} /> <Area type="monotone" dataKey="value" name="Квести" stroke="#f97316" fill="#f97316" fillOpacity={0.6} /> </AreaChart> </ResponsiveContainer> </motion.div>
-        <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-8 rounded-3xl backdrop-blur-xl bg-red-500/10 dark:bg-red-900/20 border border-red-500/50 shadow-2xl">
-           <h3 className="text-2xl font-black mb-6 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Босс (кожні 5 квестів)</h3>
-           <div className="text-center">
-             <div className="text-7xl mb-3">👹</div>
-             <p className="font-bold text-lg">Лінивий Дракон (Рів. {bossDefeatCount + 1})</p>
+        <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-white/30 shadow-2xl"> 
+          <h3 className="text-xl sm:text-2xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Прогрес (виконані квести)</h3> 
+          <ResponsiveContainer width="100%" height={180}> <AreaChart data={stats.last7Days}> <CartesianGrid strokeDasharray="3 3" stroke="rgba(120,120,120,0.2)" /> <XAxis dataKey="date" stroke="#888" /> <YAxis stroke="#888" allowDecimals={false} /> <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', borderRadius: '12px', border: 'none' }} /> <Area type="monotone" dataKey="value" name="Квести" stroke="#f97316" fill="#f97316" fillOpacity={0.6} /> </AreaChart> </ResponsiveContainer> </motion.div>
+        <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} transition={{delay: 0.1, duration: 0.5}} viewport={{ once: true, amount: 0.3 }} className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl backdrop-blur-xl bg-red-500/10 dark:bg-red-900/20 border border-red-500/50 shadow-2xl">
+          <h3 className="text-xl sm:text-2xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent tracking-tight">Босс (кожні 5 квестів)</h3>
+          <div className="text-center">
+            <div className="text-5xl sm:text-6xl md:text-7xl mb-2 sm:mb-3">👹</div>
+            <p className="font-bold text-base sm:text-lg">Лінивий Дракон (Рів. {bossDefeatCount + 1})</p>
              <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-6 mt-4 overflow-hidden"> <motion.div animate={{ width: `${(bossHp / currentMaxBossHp) * 100}%` }} className="h-full bg-gradient-to-r from-red-600 to-rose-600" /> </div>
              <p className="text-sm mt-2">{bossHp > 0 ? `${bossHp} / ${currentMaxBossHp} HP` : 'Переможений!'}</p>
              {tasksSinceLastBoss < 5 && bossHp <= 0 && ( <p className="text-sm text-yellow-500 mt-2 font-semibold"> Ще {5 - tasksSinceLastBoss} {5 - tasksSinceLastBoss === 1 ? 'квест' : 'квести'} до появи боса! </p> )}
@@ -756,7 +764,7 @@ export default function ProgressPage() {
 
       {/* --- МОДАЛЬНІ ВІКНА  --- */}
       <AnimatePresence> {showShop && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-6" onClick={() => setShowShop(false)}> <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="max-w-4xl w-full max-h-[80vh] overflow-y-auto p-6 md:p-8 rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/20 shadow-2xl" onClick={e => e.stopPropagation()}> 
-            <div className="flex justify-between items-center mb-6"> <h3 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">Магічний ринок</h3> <button onClick={() => setShowShop(false)} className="p-2 rounded-xl hover:bg-black/10 dark:hover:bg-white/20"><X className="w-6 h-6" /></button> </div> 
+            <div className="flex justify-between items-center mb-4 sm:mb-6"> <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">Магічний ринок</h3> <button onClick={() => setShowShop(false)} className="p-2 rounded-xl hover:bg-black/10 dark:hover:bg-white/20"><X className="w-6 h-6" /></button> </div> 
 
             {/* === БЛОК: ПОРАДА ВІД СТАРКА (МАГАЗИН) === */}
             <div className="mb-6 p-4 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-300 dark:border-indigo-700">
@@ -772,7 +780,7 @@ export default function ProgressPage() {
             </div>
             {/* === КІНЕЦЬ БЛОКУ === */}
 
-            <div className="flex gap-2 mb-6"> <button onClick={() => setShopTab('food')} className={`px-5 py-2 rounded-xl font-bold transition-all ${shopTab === 'food' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}> <UtensilsCrossed className="w-4 h-4 inline-block mr-1.5 -mt-0.5" /> Їжа та XP </button> <button onClick={() => setShopTab('equipment')} className={`px-5 py-2 rounded-xl font-bold transition-all ${shopTab === 'equipment' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}> <Briefcase className="w-4 h-4 inline-block mr-1.5 -mt-0.5" /> Спорядження </button> </div> <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"> {shopTab === 'food' && foodItems.map(item => { const cA = points < item.price; return ( <motion.div key={item.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} whileHover={{ scale: cA ? 1 : 1.02 }} onClick={()=>{if(cA)setToast({text:'Не вистачає очок!',type:'error'});else setSelectedItem(item);}} className={`p-4 rounded-2xl backdrop-blur-xl border-2 text-center transition-all ${cA?'opacity-60 grayscale cursor-not-allowed':'cursor-pointer border-white/30 bg-white/50 dark:bg-gray-800/50'}`}> <div className="text-4xl mb-1">{item.emoji}</div> <p className="font-bold text-sm mb-0.5">{item.name}</p> 
+            <div className="flex gap-2 mb-4 sm:mb-6"> <button onClick={() => setShopTab('food')} className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-bold transition-all text-sm sm:text-base ${shopTab === 'food' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}> <UtensilsCrossed className="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1 sm:mr-1.5 -mt-0.5" /> <span className="hidden sm:inline">Їжа та XP</span><span className="sm:hidden">Їжа</span> </button> <button onClick={() => setShopTab('equipment')} className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-bold transition-all text-sm sm:text-base ${shopTab === 'equipment' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}> <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1 sm:mr-1.5 -mt-0.5" /> <span className="hidden sm:inline">Спорядження</span><span className="sm:hidden">Споряд.</span> </button> </div> <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"> {shopTab === 'food' && foodItems.map(item => { const cA = points < item.price; return ( <motion.div key={item.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} whileHover={{ scale: cA ? 1 : 1.02 }} onClick={()=>{if(cA)setToast({text:'Не вистачає очок!',type:'error'});else setSelectedItem(item);}} className={`p-4 rounded-2xl backdrop-blur-xl border-2 text-center transition-all ${cA?'opacity-60 grayscale cursor-not-allowed':'cursor-pointer border-white/30 bg-white/50 dark:bg-gray-800/50'}`}> <div className="text-4xl mb-1">{item.emoji}</div> <p className="font-bold text-sm mb-0.5">{item.name}</p> 
                         <p className="text-sm text-gray-600 dark:text-gray-400">{item.price} <Star className="w-3 h-3 inline-block -mt-1 text-yellow-500" /></p> 
                         {item.effect && <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{item.effect}</p>} 
                       </motion.div> ); })} {shopTab === 'equipment' && equipmentItems.map(item => { const cA=points<item.price; const iC=item.type==='cosmetic'; const iP=item.type==='potion'; const iA=item.type==='artifact'; const cO=(iC||iP||iA)&&purchasedCosmetics.includes(item.id); const Icon=item.stat==='attack'?Sword:Zap; const TypeIcon=iP?FlaskConical:iA?Key:null; return ( <motion.div key={item.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} whileHover={{ scale: (cA||cO)?1:1.02 }} onClick={()=>{if(cO)setToast({text:'Вже придбано!',type:'info'});else if(cA)setToast({text:'Не вистачає очок!',type:'error'});else setSelectedItem(item);}} className={`p-4 rounded-2xl backdrop-blur-xl border-2 text-center transition-all ${(cA||cO)?'opacity-60 grayscale cursor-not-allowed':'cursor-pointer border-white/30 bg-white/50 dark:bg-gray-800/50'}`}> <div className="text-4xl mb-1">{item.emoji}</div> <p className="font-bold text-sm mb-0.5">{item.name}</p> 
@@ -791,7 +799,7 @@ export default function ProgressPage() {
       <BossBattleModal open={showBattle} onClose={() => setShowBattle(false)} bossHp={bossHp} maxBossHp={currentMaxBossHp} onAttack={() => attackBoss(false)} playerStamina={stamina} attackCost={currentAttackCost} canAttack={canAttack} onAutoAttack={autoAttack} rewardText={`Нагорода за перемогу: ${currentMaxBossHp} очок, ${currentMaxBossHp} XP + повне відновлення!`} isBossHit={isBossHit} />
       
       <AnimatePresence> {showNameModal && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-6"> <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="max-w-md w-full rounded-3xl bg-white dark:bg-gray-800 p-6 shadow-2xl" onClick={e => e.stopPropagation()}> 
-            <h3 className="text-2xl font-bold mb-4 tracking-tight">{firstVisit ? 'Як звати твого монстра?' : 'Змінити ім\'я монстра'}</h3> 
+                  <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 tracking-tight">{firstVisit ? 'Як звати твого монстра?' : 'Змінити ім\'я монстра'}</h3>
             <div className="relative"> <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /> <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} placeholder="Наприклад, 'Вогник'" className="w-full pl-10 pr-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500" /> </div> <div className="mt-4 flex gap-3"> <button onClick={handleNameSubmit} disabled={!tempName.trim()} className="flex-1 px-6 py-3 rounded-xl bg-orange-500 text-white font-bold disabled:opacity-50 transition"> {firstVisit ? 'Почати пригоду' : 'Зберегти'} </button> {!firstVisit && <button onClick={() => setShowNameModal(false)} className="px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold"> Скасувати </button>} </div> </motion.div> </motion.div> )} </AnimatePresence>
       <OnboardingModal open={showOnboarding} onClose={finishOnboarding} />
       <div className="fixed right-6 bottom-6 z-[9999]"> <AnimatePresence> {toast && ( <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg ${toast.type === 'success' ? 'bg-green-600 text-white' : toast.type === 'error' ? 'bg-red-600 text-white' : toast.type === 'warning' ? 'bg-yellow-500 text-black' : 'bg-white/90 dark:bg-gray-800/90 border border-white/20'}`}> {toast.type === 'success' && <CheckCircle className="w-5 h-5" />} {toast.type === 'error' && <AlertTriangle className="w-5 h-5" />} {toast.type === 'warning' && <AlertTriangle className="w-5 h-5" />} {toast.type === 'info' && <Info className="w-5 h-5" />} <div className="text-sm font-semibold">{toast.text}</div> </motion.div> )} </AnimatePresence> </div>

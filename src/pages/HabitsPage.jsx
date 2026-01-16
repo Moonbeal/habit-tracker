@@ -195,34 +195,35 @@ const HabitsPage = () => {
       {/* --- Блок Заголовку та Прогресу --- */}
       <div className='space-y-6'>
         <div className='flex flex-col sm:flex-row justify-between sm:items-center gap-4'>
-          <div>
-            <h2 className='text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-400 pb-2 animate-gradient'>
-              Мої Звички
-            </h2>
-            <p className='text-purple-600 dark:text-purple-400 text-base'>
-              {habits.length} {habits.length === 1 ? 'звичка' : habits.length < 5 ? 'звички' : 'звичок'} • {todayCompletions} виконано
-            </p>
-          </div>
-          <div className='flex items-center gap-3'>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowStats(true)}
-              className='glass text-purple-700 dark:text-purple-200 p-4 rounded-2xl shadow-purple'
-              aria-label="Показати статистику"
-            >
-              <BarChart3 size={24} />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowAddForm(true)}
-              className='btn-gradient-primary text-white p-4 rounded-2xl shadow-purple flex items-center justify-center sm:justify-start gap-2'
-            >
-              <Plus size={24} />
-              <span className='hidden md:inline'>Додати звичку</span>
-            </motion.button>
-          </div>
+          <div>
+            <h2 className='text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-400 pb-2 animate-gradient'>
+              Мої Звички
+            </h2>
+            <p className='text-purple-600 dark:text-purple-400 text-sm sm:text-base'>
+              {habits.length} {habits.length === 1 ? 'звичка' : habits.length < 5 ? 'звички' : 'звичок'} • {todayCompletions} виконано
+            </p>
+          </div>
+          <div className='flex items-center gap-2 sm:gap-3'>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowStats(true)}
+              className='glass text-purple-700 dark:text-purple-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-purple'
+              aria-label="Показати статистику"
+            >
+              <BarChart3 size={20} className="sm:w-6 sm:h-6" />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowAddForm(true)}
+              className='btn-gradient-primary text-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-purple flex items-center justify-center gap-2 text-sm sm:text-base'
+            >
+              <Plus size={18} className="sm:w-6 sm:h-6" />
+              <span className='hidden sm:inline'>Додати звичку</span>
+              <span className='sm:hidden'>Додати</span>
+            </motion.button>
+          </div>
         </div>
         <AnimatePresence>
           {habits.length > 0 && (
@@ -314,12 +315,12 @@ const HabitsPage = () => {
           </p>
       </div>
       ) : (
-      <motion.div 
-          className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+      <motion.div 
+        className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6'
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {filteredAndSortedHabits.map((habit) => (
         <motion.div
           key={habit.id}
@@ -356,10 +357,10 @@ const HabitsPage = () => {
               onClick={(e) => e.stopPropagation()}
               className='glass-strong rounded-2xl p-6 max-w-2xl w-full max-h-full overflow-y-auto shadow-glow space-y-6'
             >
-              <div className='flex justify-between items-center'>
-                <h3 className='text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-400 pb-1'>
-                  Ваш Прогрес
-                </h3>
+              <div className='flex justify-between items-center'>
+                <h3 className='text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-400 pb-1'>
+                  Ваш Прогрес
+                </h3>
                 <button
                   onClick={() => setShowStats(false)}
                   className='text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200'
@@ -367,26 +368,26 @@ const HabitsPage = () => {
                   <X size={24} />
                 </button>
               </div>
-              <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-                <div className='glass p-4 rounded-xl text-center'>
-                  <p className='text-sm text-purple-700 dark:text-purple-300'>Найкраща серія</p>
-                  <p className='text-3xl font-bold text-purple-900 dark:text-purple-100'>
-                    {overallBestStreak} {overallBestStreak === 1 ? 'день' : 'днів'}
-                  </p>
-                </div>
-                <div className='glass p-4 rounded-xl text-center'>
-                  <p className='text-sm text-purple-700 dark:text-purple-300'>Загалом виконано</p>
-                  <p className='text-3xl font-bold text-purple-900 dark:text-purple-100'>
-                    {overallCompletionRate.toFixed(0)}%
-                  </p>
-                </div>
-                <div className='glass p-4 rounded-xl text-center'>
-                  <p className='text-sm text-purple-700 dark:text-purple-300'>Усі звички</p>
-                  <p className='text-3xl font-bold text-purple-900 dark:text-purple-100'>
-                    {habits.length}
-                  </p>
-                </div>
-              </div>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4'>
+                <div className='glass p-3 sm:p-4 rounded-xl text-center'>
+                  <p className='text-xs sm:text-sm text-purple-700 dark:text-purple-300'>Найкраща серія</p>
+                  <p className='text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100'>
+                    {overallBestStreak} {overallBestStreak === 1 ? 'день' : 'днів'}
+                  </p>
+                </div>
+                <div className='glass p-3 sm:p-4 rounded-xl text-center'>
+                  <p className='text-xs sm:text-sm text-purple-700 dark:text-purple-300'>Загалом виконано</p>
+                  <p className='text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100'>
+                    {overallCompletionRate.toFixed(0)}%
+                  </p>
+                </div>
+                <div className='glass p-3 sm:p-4 rounded-xl text-center'>
+                  <p className='text-xs sm:text-sm text-purple-700 dark:text-purple-300'>Усі звички</p>
+                  <p className='text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100'>
+                    {habits.length}
+                  </p>
+                </div>
+              </div>
               <div className='glass p-6 rounded-xl space-y-4'>
                 <h4 className='text-xl font-bold text-purple-900 dark:text-purple-100'>
                   Цікаві факти
@@ -429,8 +430,8 @@ const HabitsPage = () => {
           onClick={(e) => e.stopPropagation()}
           className='glass-strong rounded-2xl p-6 max-w-md w-full max-h-full overflow-y-auto shadow-glow'
           >
-          <div className='flex justify-between items-center mb-4'>
-            <h3 className='text-2xl font-bold text-purple-900 dark:text-purple-100'>Нова звичка</h3>
+          <div className='flex justify-between items-center mb-4'>
+            <h3 className='text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100'>Нова звичка</h3>
             <button
             onClick={() => setShowAddForm(false)}
             className='text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200'
@@ -461,8 +462,8 @@ const HabitsPage = () => {
         onClick={(e) => e.stopPropagation()}
         className='glass-strong rounded-2xl p-6 max-w-md w-full max-h-full overflow-y-auto shadow-glow'
         >
-        <div className='flex justify-between items-center mb-4'>
-          <h3 className='text-2xl font-bold text-purple-900 dark:text-purple-100'>Редагувати звичку</h3>
+        <div className='flex justify-between items-center mb-4'>
+          <h3 className='text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100'>Редагувати звичку</h3>
           <button
           onClick={() => setEditingHabit(null)}
           className='text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200'
@@ -497,8 +498,8 @@ const HabitsPage = () => {
         onClick={(e) => e.stopPropagation()}
         className='glass-strong rounded-2xl p-6 max-w-2xl w-full max-h-full overflow-y-auto shadow-glow'
   >
-    <div className='flex justify-between items-center mb-4'>
-      <h3 className='text-2xl font-bold text-purple-900 dark:text-purple-100'>{selectedHabit.name}</h3>
+    <div className='flex justify-between items-center mb-4'>
+      <h3 className='text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100'>{selectedHabit.name}</h3>
       <button
         onClick={() => setSelectedHabit(null)}
         className='text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200'

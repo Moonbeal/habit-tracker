@@ -19,7 +19,7 @@ const App = () => {
         <div className="min-h-screen transition-colors relative">
           <FloatingElements />
           
-          <div className="container mx-auto px-4 pb-20 relative z-10">
+          <div className="container mx-auto px-3 sm:px-4 md:px-6 pb-20 relative z-10">
             <Routes>
               <Route path="/" element={<HomePage habits={habits} setHabits={setHabits} />} />
               <Route path="/habits" element={<HabitsPage habits={habits} setHabits={setHabits} />} />

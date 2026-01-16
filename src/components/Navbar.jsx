@@ -50,57 +50,57 @@ const Navbar = () => {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className='fixed bottom-0 left-0 right-0 glass-strong backdrop-blur-md shadow-purple z-50'
     >
-      <div className='container mx-auto px-4'>
-        <div className='flex justify-around items-center py-2'>
+      <div className='container mx-auto px-2 sm:px-4'>
+        <div className='flex justify-around items-center py-1.5 sm:py-2'>
           
           {/* --- Кнопка Налаштувань --- */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className='relative p-3 group transition-all rounded-xl'
+            className='relative p-2 sm:p-3 group transition-all rounded-lg sm:rounded-xl'
             aria-label="Налаштування"
           >
             <Settings 
-              size={26} 
-              className='text-purple-400 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-300'
+              size={22} 
+              className='sm:w-6 sm:h-6 text-purple-400 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-300'
             />
           </button>
           
           {/* --- Основні кнопки навігації --- */}
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className='relative p-3 group transition-all rounded-xl'
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className='relative p-2 sm:p-3 group transition-all rounded-lg sm:rounded-xl'
                 aria-label={item.label} 
-              >
-                <AnimatePresence>
-                  {isActive && (
-                  <motion.div
-                    layoutId='activeTab'
-                    className='absolute inset-0 rounded-xl bg-purple-100 dark:bg-purple-800/50 -z-10'
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                  />
-                )}
-                </AnimatePresence>
-                
-                <Icon 
-                  size={26} 
-                  className={`transition-colors ${
-                    isActive
-                      ? 'text-purple-600 dark:text-purple-200'
-                      : 'text-purple-400 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-300'
-                  }`}
-                />
-                
+              >
+                <AnimatePresence>
+                  {isActive && (
+                  <motion.div
+                    layoutId='activeTab'
+                    className='absolute inset-0 rounded-lg sm:rounded-xl bg-purple-100 dark:bg-purple-800/50 -z-10'
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                  />
+                )}
+                </AnimatePresence>
+                
+                <Icon 
+                  size={22} 
+                  className={`sm:w-6 sm:h-6 transition-colors ${
+                    isActive
+                      ? 'text-purple-600 dark:text-purple-200'
+                      : 'text-purple-400 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-300'
+                  }`}
+                />
+                
     </Link>
-            );
-          })}
-          </div>
-      </div>
+            );
+          })}
+          </div>
+      </div>
     </motion.nav>
 
     {/* Модальне вікно залишається без змін */}
